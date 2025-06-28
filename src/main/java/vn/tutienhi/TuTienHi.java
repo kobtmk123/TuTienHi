@@ -10,7 +10,6 @@ import vn.tutienhi.managers.RealmManager;
 import vn.tutienhi.managers.ZoneManager;
 import vn.tutienhi.tasks.CultivationTask;
 import vn.tutienhi.utils.ChatUtil;
-
 import java.io.File;
 
 public final class TuTienHi extends JavaPlugin {
@@ -46,7 +45,20 @@ public final class TuTienHi extends JavaPlugin {
         this.cultivationTask = new CultivationTask(this);
         this.cultivationTask.runTaskTimer(this, 0L, tickRate);
 
-        getLogger().info(ChatUtil.colorize("&aPlugin TuTienHi đã được bật!"));
+        // =================================================================
+        // == ĐOẠN CODE TÍCH HỢP PLACEHOLDERAPI ĐÃ ĐƯỢC THÊM SẴN VÀO ĐÂY ==
+        // =================================================================
+        if (getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
+            // Nếu tìm thấy plugin PlaceholderAPI, đăng ký expansion
+            new vn.tutienhi.papi.TuTienHiExpansion(this).register();
+            getLogger().info("Da ket noi thanh cong voi PlaceholderAPI!");
+        } else {
+            // Nếu không tìm thấy, cảnh báo trong console
+            getLogger().warning("Khong tim thay PlaceholderAPI, cac placeholder se khong hoat dong.");
+        }
+        // =================================================================
+
+        getLogger().info(ChatUtil.colorize("&aPlugin TuTienHi da duoc bat!"));
     }
 
     @Override
@@ -58,50 +70,36 @@ public final class TuTienHi extends JavaPlugin {
         }
 
         // Save all player data
-        playerDataManager.saveAllPlayerData();
+        if (playerDataManager != null) {
+            playerDataManager.saveAllPlayerData();
+        }
 
-        getLogger().info(ChatUtil.colorize("&cPlugin TuTienHi đã được tắt."));
+        getLogger().info(ChatUtil.colorize("&cPlugin TuTienHi da duoc tat."));
     }
 
     public void loadConfigs() {
-        // Create default files if they don't exist
         saveDefaultConfig();
-        
-        File realmsFile = new File(getDataFolder(), "realms.yml");
-        if (!realmsFile.exists()) {
-            saveResource("realms.yml", false);
-        }
-
-        File zonesFile = new File(getDataFolder(), "zones.yml");
-        if (!zonesFile.exists()) {
-            saveResource("zones.yml", false);
-        }
+        saveResourceIfNotExists("realms.yml");
+        saveResourceIfNotExists("zones.yml");
     }
     
     public void reloadPluginConfigs() {
         reloadConfig();
-        // Reload custom configs
         getRealmManager().loadRealms();
         getZoneManager().loadZones();
     }
-
-    public static TuTienHi getInstance() {
-        return instance;
-    }
-
-    public PlayerDataManager getPlayerDataManager() {
-        return playerDataManager;
-    }
-
-    public RealmManager getRealmManager() {
-        return realmManager;
-    }
     
-    public ZoneManager getZoneManager() {
-        return zoneManager;
+    private void saveResourceIfNotExists(String resourcePath) {
+        File file = new File(getDataFolder(), resourcePath);
+        if (!file.exists()) {
+            saveResource(resourcePath, false);
+        }
     }
 
-    public CultivationTask getCultivationTask() {
-        return cultivationTask;
-    }
+    // --- Getters ---
+    public static TuTienHi getInstance() { return instance; }
+    public PlayerDataManager getPlayerDataManager() { return playerDataManager; }
+    public RealmManager getRealmManager() { return realmManager; }
+    public ZoneManager getZoneManager() { return zoneManager; }
+    public CultivationTask getCultivationTask() { return cultivationTask; }
 }
