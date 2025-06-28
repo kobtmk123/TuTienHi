@@ -4,7 +4,6 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <!-- Thông tin cơ bản của plugin -->
     <groupId>vn.tutienhi</groupId>
     <artifactId>TuTienHi</artifactId>
     <version>1.0.0</version>
@@ -13,24 +12,22 @@
     <name>TuTienHi</name>
 
     <properties>
-        <!-- Rất quan trọng: Đặt phiên bản Java là 17 cho Minecraft 1.20+ -->
         <java.version>17</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <build>
         <plugins>
-            <!-- Plugin để biên dịch mã nguồn Java -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
                 <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
+                    <!-- Sửa lại phiên bản Java cho phù hợp với trình biên dịch -->
+                    <source>21</source>
+                    <target>21</target>
                 </configuration>
             </plugin>
-            <!-- Plugin để đóng gói file .jar, đảm bảo file không quá lớn -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -46,7 +43,6 @@
             </plugin>
         </plugins>
         <resources>
-            <!-- Đảm bảo các file trong thư mục resources (như plugin.yml) được đưa vào file .jar -->
             <resource>
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
@@ -55,29 +51,41 @@
     </build>
 
     <repositories>
-        <!-- Nơi để Maven tải thư viện Paper/Spigot API -->
+        <!-- Kho chứa thư viện của PaperMC -->
         <repository>
             <id>papermc-repo</id>
             <url>https://repo.papermc.io/repository/maven-public/</url>
         </repository>
+        <!-- Kho chứa thư viện chung -->
         <repository>
             <id>sonatype</id>
             <url>https://oss.sonatype.org/content/groups/public/</url>
         </repository>
+        <!-- ==================================================== -->
+        <!-- == KHO CHỨA CỦA PLACEHOLDERAPI (ĐÃ THÊM) == -->
+        <!-- ==================================================== -->
+        <repository>
+            <id>placeholderapi</id>
+            <url>https://repo.extendedclip.com/content/repositories/placeholderapi/</url>
+        </repository>
     </repositories>
 
     <dependencies>
-        <!-- Thư viện Paper API (đã bao gồm cả Spigot API) -->
-        <!-- Phiên bản 1.20.6 hỗ trợ tốt cho dải từ 1.20 đến 1.21 -->
+        <!-- Thư viện Paper API -->
         <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
             <version>1.20.6-R0.1-SNAPSHOT</version>
-            <!--
-            scope "provided" nghĩa là thư viện này sẽ được cung cấp bởi server (Paper/Spigot)
-            khi plugin chạy, nên không cần đóng gói nó vào file .jar của bạn.
-            Điều này giúp file plugin rất nhẹ.
-            -->
+            <scope>provided</scope>
+        </dependency>
+        
+        <!-- ================================================== -->
+        <!-- == THƯ VIỆN PLACEHOLDERAPI (ĐÃ THÊM) == -->
+        <!-- ================================================== -->
+        <dependency>
+            <groupId>me.clip</groupId>
+            <artifactId>placeholderapi</artifactId>
+            <version>2.11.6</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
