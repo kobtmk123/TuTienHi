@@ -6,7 +6,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
-import org.spigotmc.event.entity.EntityDismountEvent;
+// Không cần import EntityDismountEvent nữa
 import vn.tutienhi.TuTienHi;
 import vn.tutienhi.data.PlayerData;
 
@@ -26,6 +26,7 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
+        // Đảm bảo dừng tu luyện khi người chơi thoát
         if (plugin.getPlayerDataManager().getPlayerData(player) != null && plugin.getPlayerDataManager().getPlayerData(player).isCultivating()) {
             plugin.getCultivationTask().stopCultivating(player);
         }
@@ -34,26 +35,17 @@ public class PlayerListener implements Listener {
 
     @EventHandler
     public void onPlayerSneak(PlayerToggleSneakEvent event) {
+        // Chỉ kích hoạt khi bắt đầu sneak (nhấn Shift)
         if (!event.isSneaking()) return;
 
         Player player = event.getPlayer();
         PlayerData data = plugin.getPlayerDataManager().getPlayerData(player);
 
+        // Nếu người chơi đang tu luyện, dừng lại
         if (data != null && data.isCultivating()) {
             plugin.getCultivationTask().stopCultivating(player);
         }
     }
     
-    // An extra check to stop cultivating if player is forced to dismount
-    @EventHandler
-    public void onDismount(EntityDismountEvent event) {
-        if (!(event.getEntity() instanceof Player)) return;
-
-        Player player = (Player) event.getEntity();
-        PlayerData data = plugin.getPlayerDataManager().getPlayerData(player);
-
-        if (data != null && data.isCultivating()) {
-             plugin.getCultivationTask().stopCultivating(player);
-        }
-    }
+    // Đã xóa phương thức onDismount để tránh lỗi biên dịch
 }
