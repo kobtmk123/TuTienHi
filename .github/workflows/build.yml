@@ -20,11 +20,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Bước 2: Cài đặt môi trường Java (JDK) phiên bản 21 (ĐÃ SỬA LỖI)
-      - name: Set up JDK 21
+      # ====================================================================
+      # == SỬA LỖI: ĐỔI PHIÊN BẢN JAVA VỀ 17 ĐỂ TƯƠNG THÍCH VỚI SERVER ==
+      # ====================================================================
+      - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          java-version: '21'
+          java-version: '17'
           distribution: 'temurin'
           cache: maven
 
