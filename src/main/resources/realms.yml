@@ -1,0 +1,40 @@
+# Hệ thống cảnh giới
+# id: Mã định danh duy nhất (không dấu, không cách)
+# display-name: Tên hiển thị trong game (hỗ trợ mã màu)
+# max-linh-khi: Lượng linh khí tối đa cần để đột phá khỏi cảnh giới này
+# linh-khi-per-second: Lượng linh khí nhận được mỗi giây khi tu luyện ở cảnh giới này
+realms:
+  - id: "pham_nhan"
+    display-name: "&7Phàm Nhân"
+    max-linh-khi: 100
+    linh-khi-per-second: 1
+  - id: "truc_co_so_ky"
+    display-name: "&aTrúc Cơ - Sơ Kỳ"
+    max-linh-khi: 250
+    linh-khi-per-second: 2
+  - id: "truc_co_trung_ky"
+    display-name: "&aTrúc Cơ - Trung Kỳ"
+    max-linh-khi: 500
+    linh-khi-per-second: 3
+  - id: "truc_co_hau_ky"
+    display-name: "&aTrúc Cơ - Hậu Kỳ"
+    max-linh-khi: 750
+    linh-khi-per-second: 4
+  - id: "truc_co_dinh_phong"
+    display-name: "&aTrúc Cơ - Đỉnh Phong"
+    max-linh-khi: 1000
+    linh-khi-per-second: 5
+  - id: "truc_co_vien_man"
+    display-name: "&2&lTrúc Cơ - Viên Mãn"
+    max-linh-khi: 1200
+    linh-khi-per-second: 6
+  - id: "ket_dan_so_ky"
+    display-name: "&eKết Đan - Sơ Kỳ"
+    max-linh-khi: 2000
+    linh-khi-per-second: 8
+  # ... Cứ tiếp tục thêm các cảnh giới khác theo cấu trúc này
+  # Ví dụ cảnh giới cuối cùng
+  - id: "do_kiep_vien_man"
+    display-name: "&5&lĐộ Kiếp - Viên Mãn"
+    max-linh-khi: 1000000
+    linh-khi-per-second: 500

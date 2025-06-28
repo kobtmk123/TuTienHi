@@ -1,0 +1,17 @@
+# Định nghĩa các khu vực có tốc độ tu luyện khác nhau
+# name: Tên của khu vực (chỉ để nhận biết)
+# world: Tên thế giới chứa khu vực
+# pos1: Tọa độ góc thứ nhất "x,y,z"
+# pos2: Tọa độ góc thứ hai "x,y,z"
+# multiplier: Hệ số nhân linh khí. Ví dụ 2.0 là x2 tốc độ tu luyện.
+zones:
+  - name: "Thánh Địa Tu Luyện"
+    world: "world"
+    pos1: "100,64,100"
+    pos2: "200,128,200"
+    multiplier: 2.5
+  - name: "Ma Vực Sâu Thẳm"
+    world: "world_nether"
+    pos1: "-50,10,-50"
+    pos2: "50,80,50"
+    multiplier: 1.8

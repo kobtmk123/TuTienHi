@@ -1,0 +1,27 @@
+name: TuTienHi
+version: 1.0.0
+main: vn.tutienhi.TuTienHi
+api-version: '1.20'
+author: T (and Gemini)
+description: Hệ thống tu tiên đặc sắc cho server Minecraft.
+softdepend: [PlaceholderAPI] # Để sau này tích hợp nếu cần
+
+commands:
+  tuluyen:
+    description: Bắt đầu hoặc dừng trạng thái tu luyện để hấp thụ linh khí.
+    usage: /tuluyen
+    aliases: [tl]
+  dotpha:
+    description: Tiến hành đột phá lên cảnh giới tiếp theo khi đủ linh khí.
+    usage: /dotpha
+    aliases: [dp]
+  tutienhi:
+    description: Lệnh quản trị chính của plugin TuTienHi.
+    usage: /tutienhi <reload|check>
+    aliases: [tth]
+    permission: tutienhi.admin
+
+permissions:
+  tutienhi.admin:
+    description: Cho phép sử dụng các lệnh quản trị của TuTienHi.
+    default: op
