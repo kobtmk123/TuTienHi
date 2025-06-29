@@ -24,35 +24,12 @@ public class Realm {
         this.bonusDamage = bonusDamage;
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    public double getMaxLinhKhi() {
-        return maxLinhKhi;
-    }
-
-    public double getLinhKhiPerTick() {
-        return linhKhiPerTick;
-    }
-
-    public double getLightningDamage() {
-        return lightningDamage;
-    }
-
-    public List<String> getPermanentEffects() {
-        return permanentEffects;
-    }
-
-    public double getBonusHealth() {
-        return bonusHealth;
-    }
-
-    public double getBonusDamage() {
-        return bonusDamage;
-    }
+    public String getId() { return id; }
+    public String getDisplayName() { return displayName; }
+    public double getMaxLinhKhi() { return maxLinhKhi; }
+    public double getLinhKhiPerTick() { return linhKhiPerTick; }
+    public double getLightningDamage() { return lightningDamage; }
+    public List<String> getPermanentEffects() { return permanentEffects; }
+    public double getBonusHealth() { return bonusHealth; }
+    public double getBonusDamage() { return bonusDamage; }
 }

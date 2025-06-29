@@ -52,7 +52,6 @@ public class PlayerListener implements Listener {
         PlayerData data = plugin.getPlayerDataManager().getPlayerData(player);
         if (data == null) return;
 
-        // Đã sửa kiểu dữ liệu
         Realm realm = plugin.getRealmManager().getRealm(data.getRealmId());
         CultivationPathManager.Path path = plugin.getCultivationPathManager().getPath(data.getCultivationPathId());
 

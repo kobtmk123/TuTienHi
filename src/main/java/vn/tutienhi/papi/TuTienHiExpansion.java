@@ -39,7 +39,6 @@ public class TuTienHiExpansion extends PlaceholderExpansion {
             return "Dang tai...";
         }
 
-        // Đã sửa kiểu dữ liệu
         Realm realm = plugin.getRealmManager().getRealm(data.getRealmId());
         if (realm == null) {
             return "Khong ro";

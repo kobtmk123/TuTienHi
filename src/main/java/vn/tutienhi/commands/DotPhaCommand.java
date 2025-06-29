@@ -31,7 +31,6 @@ public class DotPhaCommand implements CommandExecutor {
         PlayerData data = plugin.getPlayerDataManager().getPlayerData(player);
         if (data == null) return true;
 
-        // Đã sửa kiểu dữ liệu
         Realm currentRealm = plugin.getRealmManager().getRealm(data.getRealmId());
         if (currentRealm == null) return true;
 
@@ -43,7 +42,6 @@ public class DotPhaCommand implements CommandExecutor {
             return true;
         }
         
-        // Đã sửa kiểu dữ liệu
         Realm nextRealm = plugin.getRealmManager().getNextRealm(currentRealm.getId());
         if (nextRealm == null) {
             player.sendMessage(ChatUtil.colorize(plugin.getConfig().getString("messages.prefix") + plugin.getConfig().getString("messages.breakthrough-fail-max-level")));
