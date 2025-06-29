@@ -14,11 +14,10 @@ import vn.tutienhi.utils.ChatUtil;
 
 import java.io.File;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class RealmManager {
 
-    // Lớp Realm giữ nguyên, không cần thay đổi
+    // --- Lớp Realm giữ nguyên ---
     public static class Realm {
         private final String id;
         private final String displayName;
@@ -39,7 +38,6 @@ public class RealmManager {
             this.bonusHealth = bonusHealth;
             this.bonusDamage = bonusDamage;
         }
-
         public String getId() { return id; }
         public String getDisplayName() { return displayName; }
         public double getMaxLinhKhi() { return maxLinhKhi; }
@@ -65,45 +63,55 @@ public class RealmManager {
         File realmsFile = new File(plugin.getDataFolder(), "realms.yml");
         FileConfiguration config = YamlConfiguration.loadConfiguration(realmsFile);
         
-        // Sửa lại cách lấy dữ liệu từ config để an toàn hơn
-        ConfigurationSection realmsSection = config.getConfigurationSection("realms");
-        if (realmsSection == null) {
-             plugin.getLogger().warning("Khong tim thay muc 'realms' trong realms.yml!");
-             return;
+        // =================================================================
+        // == SỬA LỖI: Làm cho việc đọc file linh hoạt hơn ==
+        // =================================================================
+        List<Map<?, ?>> realmList;
+        // Kiểm tra xem có section 'realms' không
+        if (config.isConfigurationSection("realms")) {
+            // Nếu có, lấy danh sách map từ section đó
+            realmList = config.getMapList("realms");
+        } else if (config.isList("realms")) {
+            // Trường hợp cấu trúc file vẫn đúng nhưng là list
+             realmList = config.getMapList("realms");
         }
+        else {
+            // Nếu không, coi như toàn bộ file là một danh sách map
+            // Điều này sẽ gây ra cảnh báo nếu file trống, nhưng sẽ đọc được cấu trúc cũ
+            Object rawData = config.get("");
+            if(rawData instanceof List) {
+                 realmList = (List<Map<?, ?>>) rawData;
+            } else {
+                plugin.getLogger().warning("Cau truc file realms.yml khong hop le hoac file trong!");
+                realmList = new ArrayList<>();
+            }
+        }
+        // =================================================================
 
-        for (String key : realmsSection.getKeys(false)) {
-            // Thay vì dùng getMapList, chúng ta sẽ duyệt qua từng section
-            ConfigurationSection realmMap = realmsSection.getConfigurationSection(key);
-            if (realmMap == null) continue;
-
+        for (Map<?, ?> realmMap : realmList) {
             try {
-                // Lấy các giá trị trực tiếp từ section
-                String id = realmMap.getString("id");
-                String displayName = realmMap.getString("display-name");
-                double maxLinhKhi = realmMap.getDouble("max-linh-khi");
-                double linhKhiPerTick = realmMap.getDouble("linh-khi-per-tick");
-                double lightningDamage = realmMap.getDouble("lightning-damage", 0.0);
-                
-                // Sửa lỗi đọc List<String>
-                List<String> effects = realmMap.getStringList("permanent-effects");
+                // Giữ nguyên logic đọc từng map
+                String id = (String) realmMap.get("id");
+                String displayName = (String) realmMap.get("display-name");
+                double maxLinhKhi = ((Number) realmMap.get("max-linh-khi")).doubleValue();
+                double linhKhiPerTick = ((Number) realmMap.get("linh-khi-per-tick")).doubleValue();
+                double lightningDamage = ((Number) realmMap.getOrDefault("lightning-damage", 0.0)).doubleValue();
+                List<String> effects = (List<String>) realmMap.getOrDefault("permanent-effects", new ArrayList<>());
+                double bonusHealth = ((Number) realmMap.getOrDefault("bonus-health", 0.0)).doubleValue();
+                double bonusDamage = ((Number) realmMap.getOrDefault("bonus-damage", 0.0)).doubleValue();
 
-                double bonusHealth = realmMap.getDouble("bonus-health", 0.0);
-                double bonusDamage = realmMap.getDouble("bonus-damage", 0.0);
-                
                 Realm realm = new Realm(id, displayName, maxLinhKhi, linhKhiPerTick, lightningDamage, effects, bonusHealth, bonusDamage);
                 
                 realmsById.put(id, realm);
                 realmOrder.add(id);
             } catch (Exception e) {
-                plugin.getLogger().warning("Loi khi tai mot canh gioi tu realms.yml! Key: " + key);
-                e.printStackTrace();
+                plugin.getLogger().warning("Loi khi tai mot canh gioi tu realms.yml! Kiem tra lai dinh dang. ID: " + realmMap.get("id"));
             }
         }
         plugin.getLogger().info("Da tai " + realmsById.size() + " canh gioi.");
     }
     
-    // Các hàm còn lại giữ nguyên
+    // --- Các hàm còn lại giữ nguyên ---
     public void applyRealmBonuses(Player player) {
         PlayerData data = plugin.getPlayerDataManager().getPlayerData(player);
         if (data == null) return;
