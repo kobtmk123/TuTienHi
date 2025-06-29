@@ -18,6 +18,7 @@ import java.util.*;
 public class RealmManager {
 
     public static class Realm {
+        // ... (Nội dung lớp Realm giữ nguyên)
         private final String id;
         private final String displayName;
         private final double maxLinhKhi;
@@ -27,7 +28,6 @@ public class RealmManager {
         private final double bonusHealth;
         private final double bonusDamage;
 
-        // Constructor đã được sắp xếp lại cho đúng
         public Realm(String id, String displayName, double maxLinhKhi, double linhKhiPerTick, double lightningDamage, List<String> permanentEffects, double bonusHealth, double bonusDamage) {
             this.id = id;
             this.displayName = ChatUtil.colorize(displayName);
@@ -74,9 +74,13 @@ public class RealmManager {
                 List<String> effects = (List<String>) realmMap.getOrDefault("permanent-effects", new ArrayList<>());
                 double bonusHealth = ((Number) realmMap.getOrDefault("bonus-health", 0.0)).doubleValue();
                 double bonusDamage = ((Number) realmMap.getOrDefault("bonus-damage", 0.0)).doubleValue();
-                
-                // SỬA LỖI: Gọi new Realm() với đúng thứ tự tham số
+
+                // =================================================================
+                // SỬA LỖI: Sắp xếp lại các tham số cho đúng với constructor
+                // Thứ tự đúng: id, name, linhkhi, tick, lightning, effects, health, damage
+                // =================================================================
                 Realm realm = new Realm(id, displayName, maxLinhKhi, linhKhiPerTick, lightningDamage, effects, bonusHealth, bonusDamage);
+                
                 realmsById.put(id, realm);
                 realmOrder.add(id);
             } catch (Exception e) {
@@ -93,9 +97,8 @@ public class RealmManager {
         Realm realm = getRealm(data.getRealmId());
         if (realm == null) return;
 
-        // Xóa tất cả các hiệu ứng cũ của plugin trước khi áp dụng mới
         player.getActivePotionEffects().stream()
-                .filter(effect -> effect.getDuration() > 20 * 60 * 10) // Giả định hiệu ứng vĩnh viễn có thời gian rất dài
+                .filter(effect -> effect.getDuration() > 20 * 60 * 10) 
                 .map(PotionEffect::getType)
                 .forEach(player::removePotionEffect);
 
