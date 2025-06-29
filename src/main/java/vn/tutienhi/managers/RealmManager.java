@@ -17,7 +17,7 @@ import java.util.*;
 
 public class RealmManager {
 
-    // --- Lớp Realm giữ nguyên ---
+    // Lớp Realm đã được thêm lại constructor
     public static class Realm {
         private final String id;
         private final String displayName;
@@ -28,6 +28,9 @@ public class RealmManager {
         private final double bonusHealth;
         private final double bonusDamage;
 
+        // ==========================================================
+        // == CONSTRUCTOR ĐÃ ĐƯỢC THÊM LẠI - ĐÂY LÀ PHẦN SỬA LỖI ==
+        // ==========================================================
         public Realm(String id, String displayName, double maxLinhKhi, double linhKhiPerTick, double lightningDamage, List<String> permanentEffects, double bonusHealth, double bonusDamage) {
             this.id = id;
             this.displayName = ChatUtil.colorize(displayName);
@@ -38,6 +41,7 @@ public class RealmManager {
             this.bonusHealth = bonusHealth;
             this.bonusDamage = bonusDamage;
         }
+
         public String getId() { return id; }
         public String getDisplayName() { return displayName; }
         public double getMaxLinhKhi() { return maxLinhKhi; }
@@ -63,21 +67,10 @@ public class RealmManager {
         File realmsFile = new File(plugin.getDataFolder(), "realms.yml");
         FileConfiguration config = YamlConfiguration.loadConfiguration(realmsFile);
         
-        // =================================================================
-        // == SỬA LỖI: Làm cho việc đọc file linh hoạt hơn ==
-        // =================================================================
         List<Map<?, ?>> realmList;
-        // Kiểm tra xem có section 'realms' không
-        if (config.isConfigurationSection("realms")) {
-            // Nếu có, lấy danh sách map từ section đó
+        if (config.isConfigurationSection("realms") || config.isList("realms")) {
             realmList = config.getMapList("realms");
-        } else if (config.isList("realms")) {
-            // Trường hợp cấu trúc file vẫn đúng nhưng là list
-             realmList = config.getMapList("realms");
-        }
-        else {
-            // Nếu không, coi như toàn bộ file là một danh sách map
-            // Điều này sẽ gây ra cảnh báo nếu file trống, nhưng sẽ đọc được cấu trúc cũ
+        } else {
             Object rawData = config.get("");
             if(rawData instanceof List) {
                  realmList = (List<Map<?, ?>>) rawData;
@@ -86,11 +79,9 @@ public class RealmManager {
                 realmList = new ArrayList<>();
             }
         }
-        // =================================================================
 
         for (Map<?, ?> realmMap : realmList) {
             try {
-                // Giữ nguyên logic đọc từng map
                 String id = (String) realmMap.get("id");
                 String displayName = (String) realmMap.get("display-name");
                 double maxLinhKhi = ((Number) realmMap.get("max-linh-khi")).doubleValue();
@@ -111,7 +102,6 @@ public class RealmManager {
         plugin.getLogger().info("Da tai " + realmsById.size() + " canh gioi.");
     }
     
-    // --- Các hàm còn lại giữ nguyên ---
     public void applyRealmBonuses(Player player) {
         PlayerData data = plugin.getPlayerDataManager().getPlayerData(player);
         if (data == null) return;
