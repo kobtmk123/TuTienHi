@@ -33,7 +33,6 @@ public class CultivationTask extends BukkitRunnable {
                 if (player.getVehicle() != stand) {
                      stopCultivating(player);
                 } else {
-                    // Giữ người chơi ở đúng vị trí để tránh bị đẩy đi
                     if (!player.getLocation().equals(stand.getLocation())) {
                         player.teleport(stand.getLocation());
                     }
@@ -95,7 +94,35 @@ public class CultivationTask extends BukkitRunnable {
     }
 
     private void updateScoreboard(Player player, PlayerData data) {
-        // ... (Code update scoreboard giữ nguyên, không cần sửa)
+        if(plugin.getConfig().get("scoreboard") == null) return; // Nếu scoreboard bị vô hiệu hóa thì không làm gì cả
+        
+        ScoreboardManager manager = Bukkit.getScoreboardManager();
+        if (manager == null) return;
+        Scoreboard board = player.getScoreboard();
+        if (board.getObjective("TuTienHi_sb") == null) { board = manager.getNewScoreboard(); }
+        Objective objective = board.getObjective("TuTienHi_sb");
+        if (objective == null) {
+            objective = board.registerNewObjective("TuTienHi_sb", "dummy", ChatUtil.colorize(plugin.getConfig().getString("messages.scoreboard.title")));
+            objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+        }
+        objective.setDisplayName(ChatUtil.colorize(plugin.getConfig().getString("messages.scoreboard.title")));
+        for (String entry : board.getEntries()) { board.resetScores(entry); }
+        
+        RealmManager.Realm realm = plugin.getRealmManager().getRealm(data.getRealmId());
+        if (realm == null) return;
+
+        int score = 15;
+        for (String line : plugin.getConfig().getStringList("messages.scoreboard.lines")) {
+            String processedLine = ChatUtil.colorize(line)
+                    .replace("%player_name%", player.getName())
+                    .replace("%realm_name%", realm.getDisplayName())
+                    .replace("%tutienhi_linhkhi%", String.format("%,.0f", data.getLinhKhi()))
+                    .replace("%tutienhi_linhkhi_max%", String.format("%,.0f", realm.getMaxLinhKhi()))
+                    .replace("%tutienhi_path_name%", ChatUtil.colorize(plugin.getCultivationPathManager().getPath(data.getCultivationPathId()).getDisplayName()));
+            if (processedLine.length() > 40) processedLine = processedLine.substring(0, 40);
+            objective.getScore(processedLine).setScore(score--);
+        }
+        player.setScoreboard(board);
     }
     
     public void startCultivating(Player player) {
@@ -105,7 +132,6 @@ public class CultivationTask extends BukkitRunnable {
         data.setCultivating(true);
         
         Location playerLoc = player.getLocation();
-        // Vị trí lơ lửng cách block dưới chân 2 block
         Location standLoc = playerLoc.getBlock().getLocation().add(0.5, 1.0, 0.5);
 
         ArmorStand stand = player.getWorld().spawn(standLoc, ArmorStand.class, as -> {

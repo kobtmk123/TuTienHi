@@ -3,19 +3,15 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <groupId>vn.tutienhi</groupId>
     <artifactId>TuTienHi</artifactId>
     <version>2.0.0</version>
     <packaging>jar</packaging>
-
     <name>TuTienHi</name>
-
     <properties>
         <java.version>17</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-
     <build>
         <plugins>
             <plugin>
@@ -48,7 +44,6 @@
             </resource>
         </resources>
     </build>
-
     <repositories>
         <repository>
             <id>papermc-repo</id>
@@ -62,35 +57,24 @@
             <id>placeholderapi</id>
             <url>https://repo.extendedclip.com/content/repositories/placeholderapi/</url>
         </repository>
-        <!-- ============================================== -->
-        <!-- == KHO CHỨA CỦA VAULT (ĐÃ THÊM) == -->
-        <!-- ============================================== -->
         <repository>
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
         </repository>
     </repositories>
-
     <dependencies>
-        <!-- Thư viện Paper API -->
         <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
             <version>1.20.1-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
-        
-        <!-- Thư viện PlaceholderAPI -->
         <dependency>
             <groupId>me.clip</groupId>
             <artifactId>placeholderapi</artifactId>
             <version>2.11.6</version>
             <scope>provided</scope>
         </dependency>
-
-        <!-- ============================================== -->
-        <!-- == THƯ VIỆN VAULT (ĐÃ THÊM) == -->
-        <!-- ============================================== -->
         <dependency>
             <groupId>com.github.MilkBowl</groupId>
             <artifactId>VaultAPI</artifactId>

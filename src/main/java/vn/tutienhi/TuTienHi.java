@@ -2,6 +2,8 @@ package vn.tutienhi;
 
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.NamespacedKey;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import vn.tutienhi.commands.*;
@@ -26,6 +28,7 @@ public final class TuTienHi extends JavaPlugin {
     private CultivationTask cultivationTask;
     private Economy economy = null;
     private NamespacedKey namespacedKey;
+    private FileConfiguration shopConfig;
 
     @Override
     public void onEnable() {
@@ -56,7 +59,7 @@ public final class TuTienHi extends JavaPlugin {
 
         getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
         getServer().getPluginManager().registerEvents(new ItemListener(this), this);
-        new ShopGUI(this); // Khởi tạo và đăng ký listener cho GUI
+        new ShopGUI(this);
 
         long tickRate = getConfig().getLong("settings.cultivation-tick-rate", 20L);
         this.cultivationTask = new CultivationTask(this);
@@ -83,6 +86,9 @@ public final class TuTienHi extends JavaPlugin {
         saveResourceIfNotExists("items.yml");
         saveResourceIfNotExists("shop.yml");
         saveResourceIfNotExists("cultivation_paths.yml");
+        
+        File shopFile = new File(getDataFolder(), "shop.yml");
+        this.shopConfig = YamlConfiguration.loadConfiguration(shopFile);
     }
 
     public void reloadAllConfigs() {
@@ -91,6 +97,9 @@ public final class TuTienHi extends JavaPlugin {
         zoneManager.loadZones();
         itemManager.loadItems();
         cultivationPathManager.loadPaths();
+        
+        File shopFile = new File(getDataFolder(), "shop.yml");
+        this.shopConfig = YamlConfiguration.loadConfiguration(shopFile);
     }
 
     private void saveResourceIfNotExists(String resourcePath) {
@@ -117,4 +126,5 @@ public final class TuTienHi extends JavaPlugin {
     public ItemManager getItemManager() { return itemManager; }
     public CultivationPathManager getCultivationPathManager() { return cultivationPathManager; }
     public CultivationTask getCultivationTask() { return cultivationTask; }
+    public FileConfiguration getShopConfig() { return shopConfig; }
 }

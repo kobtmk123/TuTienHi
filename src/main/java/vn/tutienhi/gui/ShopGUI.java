@@ -6,39 +6,36 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import vn.tutienhi.TuTienHi;
 import vn.tutienhi.utils.ChatUtil;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ShopGUI implements Listener {
 
     private final TuTienHi plugin;
+    private final String shopTitle;
 
     public ShopGUI(TuTienHi plugin) {
         this.plugin = plugin;
+        // Lấy tiêu đề một lần khi khởi tạo để so sánh
+        this.shopTitle = ChatUtil.colorize(plugin.getShopConfig().getString("shop.title", "&8Shop"));
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
     public void open(Player player) {
-        File shopFile = new File(plugin.getDataFolder(), "shop.yml");
-        FileConfiguration config = YamlConfiguration.loadConfiguration(shopFile);
-
-        String title = ChatUtil.colorize(config.getString("shop.title", "&8Shop"));
-        int size = config.getInt("shop.size", 27);
-        Inventory shopInventory = Bukkit.createInventory(player, size, title);
+        FileConfiguration shopConfig = plugin.getShopConfig();
+        int size = shopConfig.getInt("shop.size", 27);
+        Inventory shopInventory = Bukkit.createInventory(player, size, this.shopTitle);
         
-        ConfigurationSection itemsSection = config.getConfigurationSection("shop.items");
+        ConfigurationSection itemsSection = shopConfig.getConfigurationSection("shop.items");
         if (itemsSection == null) {
             player.openInventory(shopInventory);
             return;
@@ -57,7 +54,10 @@ public class ShopGUI implements Listener {
 
                 if (customItemId != null) {
                     displayItem = plugin.getItemManager().getItem(customItemId);
-                    if(displayItem == null) continue;
+                    if(displayItem == null) {
+                        plugin.getLogger().warning("Shop item tai slot " + slot + " co item_id khong ton tai: " + customItemId);
+                        continue;
+                    }
                 } else {
                     Material material = Material.valueOf(itemConfig.getString("material", "STONE").toUpperCase());
                     displayItem = new ItemStack(material);
@@ -70,7 +70,7 @@ public class ShopGUI implements Listener {
                     meta.setDisplayName(ChatUtil.colorize(itemConfig.getString("display-name")));
                 }
                 
-                List<String> newLore = new ArrayList<>(meta.getLore() != null ? meta.getLore() : new ArrayList<>());
+                List<String> newLore = new ArrayList<>(meta.hasLore() ? meta.getLore() : new ArrayList<>());
                 double price = itemConfig.getDouble("price", 0.0);
                 for (String loreLine : itemConfig.getStringList("lore")) {
                     newLore.add(ChatUtil.colorize(loreLine.replace("%price%", String.format("%,.2f", price))));
@@ -90,12 +90,13 @@ public class ShopGUI implements Listener {
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player)) return;
-        if (event.getView().getTitle().equals(ChatUtil.colorize(plugin.getShopConfig().getString("shop.title", "&8Shop")))) {
+        
+        if (event.getView().getTitle().equals(this.shopTitle)) {
             event.setCancelled(true);
             
             Player player = (Player) event.getWhoClicked();
             ItemStack clickedItem = event.getCurrentItem();
-            if (clickedItem == null || clickedItem.getType() == Material.AIR) return;
+            if (clickedItem == null || clickedItem.getType().isAir()) return;
             
             String slotStr = String.valueOf(event.getSlot());
             ConfigurationSection itemConfig = plugin.getShopConfig().getConfigurationSection("shop.items." + slotStr);
