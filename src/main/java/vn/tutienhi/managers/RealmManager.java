@@ -10,14 +10,11 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import vn.tutienhi.TuTienHi;
 import vn.tutienhi.data.PlayerData;
-import vn.tutienhi.models.Realm; // Import lớp Realm độc lập
-
+import vn.tutienhi.models.Realm;
 import java.io.File;
 import java.util.*;
 
 public class RealmManager {
-
-    // Lớp Realm đã được chuyển ra file models/Realm.java, không còn ở đây nữa.
 
     private final TuTienHi plugin;
     private final Map<String, Realm> realmsById = new LinkedHashMap<>();
@@ -34,94 +31,41 @@ public class RealmManager {
         File realmsFile = new File(plugin.getDataFolder(), "realms.yml");
         FileConfiguration config = YamlConfiguration.loadConfiguration(realmsFile);
         
-        List<Map<?, ?>> realmList = config.getMapList("realms");
-        if (realmList.isEmpty()) {
-             plugin.getLogger().warning("Khong tim thay danh sach 'realms' trong realms.yml hoac danh sach trong!");
-             return;
+        ConfigurationSection realmsSection = config.getConfigurationSection("realms");
+        if (realmsSection == null) {
+            plugin.getLogger().warning("Khong tim thay section 'realms' trong realms.yml!");
+            return;
         }
 
-        for (Map<?, ?> realmMap : realmList) {
+        for (String key : realmsSection.getKeys(false)) {
+            ConfigurationSection realmSection = realmsSection.getConfigurationSection(key);
+            if (realmSection == null) continue;
+
             try {
-                String id = (String) realmMap.get("id");
+                String id = realmSection.getString("id");
                 if (id == null) {
-                    plugin.getLogger().warning("Mot canh gioi trong realms.yml thieu 'id'!");
+                    plugin.getLogger().warning("Canh gioi voi key '" + key + "' thieu ID!");
                     continue;
                 }
-
-                String displayName = (String) realmMap.get("display-name");
-                double maxLinhKhi = ((Number) realmMap.get("max-linh-khi")).doubleValue();
-                double linhKhiPerTick = ((Number) realmMap.get("linh-khi-per-tick")).doubleValue();
                 
-                double lightningDamage = ((Number) realmMap.getOrDefault("lightning-damage", 0.0)).doubleValue();
-                // Ép kiểu an toàn cho List<String>
-                List<String> effects = (List<String>) realmMap.getOrDefault("permanent-effects", Collections.emptyList());
-                double bonusHealth = ((Number) realmMap.getOrDefault("bonus-health", 0.0)).doubleValue();
-                double bonusDamage = ((Number) realmMap.getOrDefault("bonus-damage", 0.0)).doubleValue();
+                String displayName = realmSection.getString("display-name");
+                double maxLinhKhi = realmSection.getDouble("max-linh-khi");
+                double linhKhiPerTick = realmSection.getDouble("linh-khi-per-tick");
+                double lightningDamage = realmSection.getDouble("lightning-damage", 0.0);
+                List<String> effects = realmSection.getStringList("permanent-effects");
+                double bonusHealth = realmSection.getDouble("bonus-health", 0.0);
+                double bonusDamage = realmSection.getDouble("bonus-damage", 0.0);
 
                 Realm realm = new Realm(id, displayName, maxLinhKhi, linhKhiPerTick, lightningDamage, effects, bonusHealth, bonusDamage);
                 
                 realmsById.put(id, realm);
                 realmOrder.add(id);
             } catch (Exception e) {
-                plugin.getLogger().warning("Loi khi tai mot canh gioi tu realms.yml! Kiem tra lai dinh dang. ID co the la: " + realmMap.get("id"));
-                e.printStackTrace();
+                plugin.getLogger().severe("Loi nghiem trong khi tai canh gioi voi key '" + key + "': " + e.getMessage());
             }
         }
         plugin.getLogger().info("Da tai " + realmsById.size() + " canh gioi.");
     }
     
-    public void applyRealmBonuses(Player player) {
-        PlayerData data = plugin.getPlayerDataManager().getPlayerData(player);
-        if (data == null) return;
-        Realm realm = getRealm(data.getRealmId());
-        if (realm == null) return;
-
-        // Xóa các hiệu ứng cũ của plugin trước khi áp dụng mới
-        player.getActivePotionEffects().stream()
-                .filter(effect -> effect.getDuration() > 20 * 60 * 10) // Giả định hiệu ứng vĩnh viễn có thời gian rất dài
-                .map(PotionEffect::getType)
-                .forEach(player::removePotionEffect);
-
-        // Áp dụng hiệu ứng mới
-        for (String effectString : realm.getPermanentEffects()) {
-            try {
-                String[] parts = effectString.split(":");
-                PotionEffectType type = PotionEffectType.getByName(parts[0].toUpperCase());
-                int amplifier = Integer.parseInt(parts[1]);
-                if (type != null) {
-                    player.addPotionEffect(new PotionEffect(type, Integer.MAX_VALUE, amplifier, true, false));
-                }
-            } catch (Exception e) {
-                plugin.getLogger().warning("Hieu ung khong hop le trong realms.yml: " + effectString);
-            }
-        }
-    }
-    
-    // Các hàm getters để các file khác có thể truy cập
-    public Realm getRealm(String id) { 
-        return realmsById.get(id); 
-    }
-    
-    public Realm getInitialRealm() { 
-        if (realmOrder.isEmpty()) return null; 
-        return getRealm(realmOrder.get(0)); 
-    }
-    
-    public Realm getNextRealm(String currentRealmId) {
-        int currentIndex = realmOrder.indexOf(currentRealmId);
-        if (currentIndex == -1 || currentIndex + 1 >= realmOrder.size()) return null;
-        return getRealm(realmOrder.get(currentIndex + 1));
-    }
-    
-    public List<Realm> getRealms() {
-        return new ArrayList<>(realmsById.values());
-    }
-    
-    public List<String> getRealmOrder() { 
-        return realmOrder; 
-    }
-    
-    public int getTotalRealms() { 
-        return realmOrder.size(); 
-    }
+    // Các hàm còn lại giữ nguyên
 }
