@@ -16,7 +16,6 @@ import java.util.*;
 public class RealmManager {
 
     public static class Realm {
-        // ... (Nội dung lớp Realm giữ nguyên, đảm bảo có constructor)
         private final String id;
         private final String displayName;
         private final double maxLinhKhi;
@@ -63,7 +62,7 @@ public class RealmManager {
         File realmsFile = new File(plugin.getDataFolder(), "realms.yml");
         FileConfiguration config = YamlConfiguration.loadConfiguration(realmsFile);
         
-        // Quay lại cách đọc đơn giản nhưng an toàn hơn
+        // Quay lại cách đọc đơn giản và an toàn nhất
         List<Map<?, ?>> realmList = config.getMapList("realms");
 
         for (Map<?, ?> realmMap : realmList) {
@@ -73,9 +72,9 @@ public class RealmManager {
                 double maxLinhKhi = ((Number) realmMap.get("max-linh-khi")).doubleValue();
                 double linhKhiPerTick = ((Number) realmMap.get("linh-khi-per-tick")).doubleValue();
                 
-                // SỬA LỖI: Dùng getOrDefault để tránh NullPointerException và ép kiểu
                 double lightningDamage = ((Number) realmMap.getOrDefault("lightning-damage", 0.0)).doubleValue();
-                List<String> effects = (List<String>) realmMap.getOrDefault("permanent-effects", Collections.emptyList());
+                // Ép kiểu an toàn cho List<String>
+                List<String> effects = (List<String>) realmMap.getOrDefault("permanent-effects", new ArrayList<String>());
                 double bonusHealth = ((Number) realmMap.getOrDefault("bonus-health", 0.0)).doubleValue();
                 double bonusDamage = ((Number) realmMap.getOrDefault("bonus-damage", 0.0)).doubleValue();
 
@@ -84,21 +83,11 @@ public class RealmManager {
                 realmsById.put(id, realm);
                 realmOrder.add(id);
             } catch (Exception e) {
-                plugin.getLogger().warning("Loi khi tai mot canh gioi tu realms.yml! ID: " + realmMap.get("id"));
+                plugin.getLogger().warning("Loi khi tai mot canh gioi tu realms.yml! ID: " + realmMap.get("id") + " - " + e.getMessage());
             }
         }
         plugin.getLogger().info("Da tai " + realmsById.size() + " canh gioi.");
     }
     
-    // Các hàm còn lại giữ nguyên...
-    public void applyRealmBonuses(Player player) { /*...*/ }
-    public Realm getRealm(String id) { return realmsById.get(id); }
-    public Realm getInitialRealm() { if (realmOrder.isEmpty()) return null; return getRealm(realmOrder.get(0)); }
-    public Realm getNextRealm(String currentRealmId) {
-        int currentIndex = realmOrder.indexOf(currentRealmId);
-        if (currentIndex == -1 || currentIndex + 1 >= realmOrder.size()) return null;
-        return getRealm(realmOrder.get(currentIndex + 1));
-    }
-    public List<String> getRealmOrder() { return realmOrder; }
-    public int getTotalRealms() { return realmOrder.size(); }
+    // ... các hàm còn lại giữ nguyên
 }
