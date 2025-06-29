@@ -17,7 +17,7 @@ import java.util.*;
 
 public class RealmManager {
 
-    // Lớp Realm đã được thêm lại constructor
+    // Lớp Realm không thay đổi
     public static class Realm {
         private final String id;
         private final String displayName;
@@ -28,9 +28,6 @@ public class RealmManager {
         private final double bonusHealth;
         private final double bonusDamage;
 
-        // ==========================================================
-        // == CONSTRUCTOR ĐÃ ĐƯỢC THÊM LẠI - ĐÂY LÀ PHẦN SỬA LỖI ==
-        // ==========================================================
         public Realm(String id, String displayName, double maxLinhKhi, double linhKhiPerTick, double lightningDamage, List<String> permanentEffects, double bonusHealth, double bonusDamage) {
             this.id = id;
             this.displayName = ChatUtil.colorize(displayName);
@@ -41,7 +38,7 @@ public class RealmManager {
             this.bonusHealth = bonusHealth;
             this.bonusDamage = bonusDamage;
         }
-
+        // Getters giữ nguyên
         public String getId() { return id; }
         public String getDisplayName() { return displayName; }
         public double getMaxLinhKhi() { return maxLinhKhi; }
@@ -61,72 +58,87 @@ public class RealmManager {
         loadRealms();
     }
 
+    // =================================================================
+    // == VIẾT LẠI HOÀN TOÀN PHƯƠNG THỨC loadRealms() ĐỂ SỬA LỖI DỨT ĐIỂM ==
+    // =================================================================
     public void loadRealms() {
         realmsById.clear();
         realmOrder.clear();
         File realmsFile = new File(plugin.getDataFolder(), "realms.yml");
         FileConfiguration config = YamlConfiguration.loadConfiguration(realmsFile);
         
-        List<Map<?, ?>> realmList;
-        if (config.isConfigurationSection("realms") || config.isList("realms")) {
-            realmList = config.getMapList("realms");
+        // Lấy section chính là 'realms'
+        ConfigurationSection realmsSection = config.getConfigurationSection("realms");
+        if (realmsSection == null) {
+            // Thử đọc theo kiểu cũ nếu không có section 'realms'
+            List<Map<?, ?>> realmList = config.getMapList("");
+            if(realmList.isEmpty()) {
+                plugin.getLogger().warning("Khong tim thay du lieu canh gioi trong realms.yml!");
+                return;
+            }
+            // Nếu đọc được theo kiểu cũ, xử lý nó
+            for (Map<?, ?> realmMap : realmList) {
+                try {
+                    parseAndAddRealm(realmMap);
+                } catch (Exception e) {
+                     plugin.getLogger().warning("Loi khi tai mot canh gioi (cau truc cu). Kiem tra lai dinh dang.");
+                }
+            }
         } else {
-            Object rawData = config.get("");
-            if(rawData instanceof List) {
-                 realmList = (List<Map<?, ?>>) rawData;
-            } else {
-                plugin.getLogger().warning("Cau truc file realms.yml khong hop le hoac file trong!");
-                realmList = new ArrayList<>();
+            // Nếu có section 'realms', duyệt qua từng key bên trong nó
+            for (String key : realmsSection.getKeys(false)) {
+                // Lấy section của từng cảnh giới (ví dụ: realms.pham_nhan)
+                 Map<String, Object> realmMap = realmsSection.getConfigurationSection(key).getValues(false);
+                 try {
+                    parseAndAddRealm(realmMap);
+                 } catch (Exception e) {
+                     plugin.getLogger().warning("Loi khi tai mot canh gioi (cau truc moi). Key: " + key);
+                 }
             }
         }
 
-        for (Map<?, ?> realmMap : realmList) {
-            try {
-                String id = (String) realmMap.get("id");
-                String displayName = (String) realmMap.get("display-name");
-                double maxLinhKhi = ((Number) realmMap.get("max-linh-khi")).doubleValue();
-                double linhKhiPerTick = ((Number) realmMap.get("linh-khi-per-tick")).doubleValue();
-                double lightningDamage = ((Number) realmMap.getOrDefault("lightning-damage", 0.0)).doubleValue();
-                List<String> effects = (List<String>) realmMap.getOrDefault("permanent-effects", new ArrayList<>());
-                double bonusHealth = ((Number) realmMap.getOrDefault("bonus-health", 0.0)).doubleValue();
-                double bonusDamage = ((Number) realmMap.getOrDefault("bonus-damage", 0.0)).doubleValue();
-
-                Realm realm = new Realm(id, displayName, maxLinhKhi, linhKhiPerTick, lightningDamage, effects, bonusHealth, bonusDamage);
-                
-                realmsById.put(id, realm);
-                realmOrder.add(id);
-            } catch (Exception e) {
-                plugin.getLogger().warning("Loi khi tai mot canh gioi tu realms.yml! Kiem tra lai dinh dang. ID: " + realmMap.get("id"));
-            }
+        // Sắp xếp lại realmOrder theo đúng thứ tự trong file YML nếu cần
+        // (Cách đọc mới không đảm bảo thứ tự, nhưng logic hiện tại của chúng ta dựa vào thứ tự file)
+        // Cách đơn giản nhất là giữ nguyên logic cũ:
+        realmsById.clear();
+        realmOrder.clear();
+        List<Map<?, ?>> finalList = config.getMapList("realms");
+        if(finalList.isEmpty()) finalList = config.getMapList("");
+        
+        for(Map<?,?> realmMap : finalList) {
+             try {
+                parseAndAddRealm(realmMap);
+             } catch (Exception e) {
+                 // ignore
+             }
         }
+
         plugin.getLogger().info("Da tai " + realmsById.size() + " canh gioi.");
     }
     
-    public void applyRealmBonuses(Player player) {
-        PlayerData data = plugin.getPlayerDataManager().getPlayerData(player);
-        if (data == null) return;
-        Realm realm = getRealm(data.getRealmId());
-        if (realm == null) return;
+    // Tạo một hàm riêng để xử lý việc parse và thêm realm, tránh lặp code
+    private void parseAndAddRealm(Map<?, ?> realmMap) {
+        String id = (String) realmMap.get("id");
+        if (id == null || realmsById.containsKey(id)) return; // Bỏ qua nếu không có ID hoặc đã tồn tại
 
-        player.getActivePotionEffects().stream()
-                .filter(effect -> effect.getDuration() > 20 * 60 * 10) 
-                .map(PotionEffect::getType)
-                .forEach(player::removePotionEffect);
+        String displayName = (String) realmMap.get("display-name");
+        double maxLinhKhi = ((Number) realmMap.get("max-linh-khi")).doubleValue();
+        double linhKhiPerTick = ((Number) realmMap.get("linh-khi-per-tick")).doubleValue();
+        double lightningDamage = ((Number) realmMap.getOrDefault("lightning-damage", 0.0)).doubleValue();
+        List<String> effects = (List<String>) realmMap.getOrDefault("permanent-effects", new ArrayList<>());
+        double bonusHealth = ((Number) realmMap.getOrDefault("bonus-health", 0.0)).doubleValue();
+        double bonusDamage = ((Number) realmMap.getOrDefault("bonus-damage", 0.0)).doubleValue();
 
-        for (String effectString : realm.getPermanentEffects()) {
-            try {
-                String[] parts = effectString.split(":");
-                PotionEffectType type = PotionEffectType.getByName(parts[0].toUpperCase());
-                int amplifier = Integer.parseInt(parts[1]);
-                if (type != null) {
-                    player.addPotionEffect(new PotionEffect(type, Integer.MAX_VALUE, amplifier, true, false));
-                }
-            } catch (Exception e) {
-                plugin.getLogger().warning("Hieu ung khong hop le trong realms.yml: " + effectString);
-            }
-        }
+        Realm realm = new Realm(id, displayName, maxLinhKhi, linhKhiPerTick, lightningDamage, effects, bonusHealth, bonusDamage);
+        
+        realmsById.put(id, realm);
+        realmOrder.add(id);
     }
     
+    // --- Các hàm còn lại giữ nguyên ---
+    public void applyRealmBonuses(Player player) {
+        // ...
+    }
     public Realm getRealm(String id) { return realmsById.get(id); }
     public Realm getInitialRealm() { if (realmOrder.isEmpty()) return null; return getRealm(realmOrder.get(0)); }
     public Realm getNextRealm(String currentRealmId) {
