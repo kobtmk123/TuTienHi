@@ -6,7 +6,7 @@
 
     <groupId>vn.tutienhi</groupId>
     <artifactId>TuTienHi</artifactId>
-    <version>1.0.0</version>
+    <version>2.0.0</version>
     <packaging>jar</packaging>
 
     <name>TuTienHi</name>
@@ -62,12 +62,17 @@
             <id>placeholderapi</id>
             <url>https://repo.extendedclip.com/content/repositories/placeholderapi/</url>
         </repository>
+        <!-- ============================================== -->
+        <!-- == KHO CHỨA CỦA VAULT (ĐÃ THÊM) == -->
+        <!-- ============================================== -->
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
     </repositories>
 
     <dependencies>
-        <!-- ==================================================================== -->
-        <!-- == SỬA LỖI: ĐỔI PHIÊN BẢN PAPER API VỀ 1.20.1 ĐỂ TƯƠNG THÍCH JAVA 17 == -->
-        <!-- ==================================================================== -->
+        <!-- Thư viện Paper API -->
         <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
@@ -80,6 +85,16 @@
             <groupId>me.clip</groupId>
             <artifactId>placeholderapi</artifactId>
             <version>2.11.6</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- ============================================== -->
+        <!-- == THƯ VIỆN VAULT (ĐÃ THÊM) == -->
+        <!-- ============================================== -->
+        <dependency>
+            <groupId>com.github.MilkBowl</groupId>
+            <artifactId>VaultAPI</artifactId>
+            <version>1.7</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
