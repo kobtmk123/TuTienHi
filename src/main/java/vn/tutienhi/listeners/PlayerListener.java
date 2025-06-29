@@ -1,6 +1,5 @@
 package vn.tutienhi.listeners;
 
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -24,7 +23,6 @@ public class PlayerListener implements Listener {
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         plugin.getPlayerDataManager().loadPlayerData(player);
-        // Dùng Bukkit.getScheduler() để chạy tác vụ sau 1 tick, đảm bảo người chơi đã load hoàn toàn
         plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
             plugin.getRealmManager().applyRealmBonuses(player);
             plugin.getCultivationPathManager().applyPathBonus(player);
@@ -42,6 +40,7 @@ public class PlayerListener implements Listener {
         Player player = event.getPlayer();
         PlayerData data = plugin.getPlayerDataManager().getPlayerData(player);
         if (data != null && data.isCultivating()) {
+            // SỬA LỖI: Gọi thẳng đến task đã được lưu trong instance chính
             plugin.getCultivationTask().stopCultivating(player);
         }
     }
@@ -64,10 +63,9 @@ public class PlayerListener implements Listener {
         double finalDamage;
         
         ItemStack itemInHand = player.getInventory().getItemInMainHand();
-        // Kiểm tra nếu là Kiếm Tu và đang dùng kiếm
         if (path.getId().equals("kiemtu") && itemInHand.getType().name().endsWith("_SWORD")) {
             finalDamage = (originalDamage * path.getSwordDamageMultiplier()) + bonusDamage;
-        } else { // Các trường hợp khác
+        } else {
             finalDamage = (originalDamage * path.getDamageMultiplier()) + bonusDamage;
         }
         

@@ -14,7 +14,6 @@ import vn.tutienhi.utils.ChatUtil;
 
 import java.io.File;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class RealmManager {
 
@@ -28,6 +27,7 @@ public class RealmManager {
         private final double bonusHealth;
         private final double bonusDamage;
 
+        // Constructor đã được sắp xếp lại cho đúng
         public Realm(String id, String displayName, double maxLinhKhi, double linhKhiPerTick, double lightningDamage, List<String> permanentEffects, double bonusHealth, double bonusDamage) {
             this.id = id;
             this.displayName = ChatUtil.colorize(displayName);
@@ -74,8 +74,8 @@ public class RealmManager {
                 List<String> effects = (List<String>) realmMap.getOrDefault("permanent-effects", new ArrayList<>());
                 double bonusHealth = ((Number) realmMap.getOrDefault("bonus-health", 0.0)).doubleValue();
                 double bonusDamage = ((Number) realmMap.getOrDefault("bonus-damage", 0.0)).doubleValue();
-
-                // Sửa lại thứ tự các tham số cho đúng với constructor
+                
+                // SỬA LỖI: Gọi new Realm() với đúng thứ tự tham số
                 Realm realm = new Realm(id, displayName, maxLinhKhi, linhKhiPerTick, lightningDamage, effects, bonusHealth, bonusDamage);
                 realmsById.put(id, realm);
                 realmOrder.add(id);
@@ -87,28 +87,24 @@ public class RealmManager {
         plugin.getLogger().info("Da tai " + realmsById.size() + " canh gioi.");
     }
 
-    // Bổ sung phương thức bị thiếu
     public void applyRealmBonuses(Player player) {
         PlayerData data = plugin.getPlayerDataManager().getPlayerData(player);
         if (data == null) return;
         Realm realm = getRealm(data.getRealmId());
         if (realm == null) return;
 
-        // Xóa tất cả các hiệu ứng cũ của plugin để tránh cộng dồn
-        for (PotionEffect activeEffect : player.getActivePotionEffects()) {
-            if (activeEffect.getAmplifier() >= 100) { // Giả định hiệu ứng của plugin có cấp cao để nhận diện
-                player.removePotionEffect(activeEffect.getType());
-            }
-        }
+        // Xóa tất cả các hiệu ứng cũ của plugin trước khi áp dụng mới
+        player.getActivePotionEffects().stream()
+                .filter(effect -> effect.getDuration() > 20 * 60 * 10) // Giả định hiệu ứng vĩnh viễn có thời gian rất dài
+                .map(PotionEffect::getType)
+                .forEach(player::removePotionEffect);
 
-        // Áp dụng hiệu ứng mới
         for (String effectString : realm.getPermanentEffects()) {
             try {
                 String[] parts = effectString.split(":");
                 PotionEffectType type = PotionEffectType.getByName(parts[0].toUpperCase());
                 int amplifier = Integer.parseInt(parts[1]);
                 if (type != null) {
-                    // Dùng cấp 123 và thời gian vô hạn để đánh dấu là hiệu ứng vĩnh viễn
                     player.addPotionEffect(new PotionEffect(type, Integer.MAX_VALUE, amplifier, true, false));
                 }
             } catch (Exception e) {
