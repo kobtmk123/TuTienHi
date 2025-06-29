@@ -10,50 +10,72 @@ import vn.tutienhi.gui.ShopGUI;
 import vn.tutienhi.listeners.ItemListener;
 import vn.tutienhi.listeners.PlayerListener;
 import vn.tutienhi.managers.*;
+import vn.tutienhi.papi.TuTienHiExpansion;
 import vn.tutienhi.tasks.CultivationTask;
 import vn.tutienhi.utils.ChatUtil;
 import java.io.File;
 
 public final class TuTienHi extends JavaPlugin {
 
-    // ... các biến instance giữ nguyên
-    
+    private static TuTienHi instance;
+    private PlayerDataManager playerDataManager;
+    private RealmManager realmManager;
+    private ZoneManager zoneManager;
+    private ItemManager itemManager;
+    private CultivationPathManager cultivationPathManager;
+    private CultivationTask cultivationTask;
+    private Economy economy = null;
+    private NamespacedKey namespacedKey;
+
     @Override
     public void onEnable() {
         instance = this;
         this.namespacedKey = new NamespacedKey(this, "tutienhi_item_id");
-        
-        // SỬA LỖI: Gọi đúng tên hàm loadAllConfigs()
-        loadAllConfigs(); 
-        
+
+        loadAllConfigs();
+
         if (!setupEconomy()) {
             getLogger().severe("Khong tim thay plugin Vault hoac mot plugin kinh te! Shop se khong hoat dong.");
         }
-        
+
         this.itemManager = new ItemManager(this);
         this.cultivationPathManager = new CultivationPathManager(this);
         this.playerDataManager = new PlayerDataManager(this);
         this.realmManager = new RealmManager(this);
         this.zoneManager = new ZoneManager(this);
-        
-        // ... đăng ký command và listener giữ nguyên ...
 
-        new ShopGUI(this);
-        
+        getCommand("tuluyen").setExecutor(new TuLuyenCommand(this));
+        getCommand("dotpha").setExecutor(new DotPhaCommand(this));
+        getCommand("tutienhi").setExecutor(new AdminCommand(this));
+        getCommand("shoptiengioi").setExecutor(new ShopCommand(this));
+        CultivationPathCommand pathCommand = new CultivationPathCommand(this);
+        getCommand("conduongtutap").setExecutor(pathCommand);
+        getCommand("kiemtu").setExecutor(pathCommand);
+        getCommand("phattu").setExecutor(pathCommand);
+        getCommand("matu").setExecutor(pathCommand);
+
+        getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
+        getServer().getPluginManager().registerEvents(new ItemListener(this), this);
+        new ShopGUI(this); // Khởi tạo và đăng ký listener cho GUI
+
         long tickRate = getConfig().getLong("settings.cultivation-tick-rate", 20L);
         this.cultivationTask = new CultivationTask(this);
         this.cultivationTask.runTaskTimer(this, 0L, tickRate);
 
         if (getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
-            new vn.tutienhi.papi.TuTienHiExpansion(this).register();
+            new TuTienHiExpansion(this).register();
             getLogger().info("Da ket noi thanh cong voi PlaceholderAPI!");
         }
         getLogger().info(ChatUtil.colorize("&aPlugin TuTienHi v2.0 da duoc bat!"));
     }
 
-    // ... onDisable() giữ nguyên ...
+    @Override
+    public void onDisable() {
+        if (cultivationTask != null) { cultivationTask.cancel(); }
+        if (playerDataManager != null) { playerDataManager.saveAllPlayerData(); }
+        getLogger().info(ChatUtil.colorize("&cPlugin TuTienHi da duoc tat."));
+    }
 
-    // SỬA LỖI: Các hàm này phải tồn tại
     public void loadAllConfigs() {
         saveDefaultConfig();
         saveResourceIfNotExists("realms.yml");
@@ -62,17 +84,22 @@ public final class TuTienHi extends JavaPlugin {
         saveResourceIfNotExists("shop.yml");
         saveResourceIfNotExists("cultivation_paths.yml");
     }
-    
+
     public void reloadAllConfigs() {
         reloadConfig();
-        getRealmManager().loadRealms();
-        getZoneManager().loadZones();
-        getItemManager().loadItems();
-        getCultivationPathManager().loadPaths();
+        realmManager.loadRealms();
+        zoneManager.loadZones();
+        itemManager.loadItems();
+        cultivationPathManager.loadPaths();
     }
-    
-    private void saveResourceIfNotExists(String resourcePath) { /* ... */ }
-    
+
+    private void saveResourceIfNotExists(String resourcePath) {
+        File file = new File(getDataFolder(), resourcePath);
+        if (!file.exists()) {
+            saveResource(resourcePath, false);
+        }
+    }
+
     private boolean setupEconomy() {
         if (getServer().getPluginManager().getPlugin("Vault") == null) return false;
         RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
@@ -81,5 +108,13 @@ public final class TuTienHi extends JavaPlugin {
         return economy != null;
     }
 
-    // ... các getters giữ nguyên, bao gồm cả getCultivationTask()
+    public static TuTienHi getInstance() { return instance; }
+    public Economy getEconomy() { return economy; }
+    public NamespacedKey getNamespacedKey() { return namespacedKey; }
+    public PlayerDataManager getPlayerDataManager() { return playerDataManager; }
+    public RealmManager getRealmManager() { return realmManager; }
+    public ZoneManager getZoneManager() { return zoneManager; }
+    public ItemManager getItemManager() { return itemManager; }
+    public CultivationPathManager getCultivationPathManager() { return cultivationPathManager; }
+    public CultivationTask getCultivationTask() { return cultivationTask; }
 }

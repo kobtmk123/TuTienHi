@@ -52,9 +52,7 @@ public class DotPhaCommand implements CommandExecutor {
         data.setLinhKhi(0);
         
         if (nextRealm.getLightningDamage() > 0) {
-            // Sửa lại tên EntityType cho đúng
             LightningStrike lightning = (LightningStrike) player.getWorld().spawnEntity(player.getLocation(), EntityType.LIGHTNING);
-            // Cách này sẽ tạo hiệu ứng sét nhưng không gây sát thương cho người chơi
             lightning.setCausingPlayer(player);
         }
 

@@ -35,7 +35,6 @@ public class CultivationPathCommand implements CommandExecutor {
             return true;
         }
         
-        // Xử lý các lệnh chọn hệ
         String pathId = null;
         switch (commandName) {
             case "kiemtu":
@@ -44,7 +43,6 @@ public class CultivationPathCommand implements CommandExecutor {
             case "phattu":
                 pathId = "phattu";
                 break;
-
             case "matu":
                 pathId = "matu";
                 break;
@@ -53,7 +51,6 @@ public class CultivationPathCommand implements CommandExecutor {
         if (pathId != null) {
             choosePath(player, pathId);
         }
-
         return true;
     }
     
@@ -61,15 +58,13 @@ public class CultivationPathCommand implements CommandExecutor {
         PlayerData data = plugin.getPlayerDataManager().getPlayerData(player);
         if (data == null) return;
         
-        // Kiểm tra xem đã chọn chưa
         if (!data.getCultivationPathId().equals("none")) {
             player.sendMessage(ChatUtil.colorize(plugin.getConfig().getString("messages.prefix") + plugin.getConfig().getString("messages.path-already-chosen")));
             return;
         }
         
-        // Thiết lập con đường mới
         data.setCultivationPathId(pathId);
-        plugin.getCultivationPathManager().applyPathBonus(player); // Áp dụng bonus ngay lập tức
+        plugin.getCultivationPathManager().applyPathBonus(player);
         
         CultivationPathManager.Path path = plugin.getCultivationPathManager().getPath(pathId);
         String message = plugin.getConfig().getString("messages.path-chosen")

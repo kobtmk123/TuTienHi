@@ -40,7 +40,6 @@ public class PlayerListener implements Listener {
         Player player = event.getPlayer();
         PlayerData data = plugin.getPlayerDataManager().getPlayerData(player);
         if (data != null && data.isCultivating()) {
-            // SỬA LỖI: Gọi thẳng đến task đã được lưu trong instance chính
             plugin.getCultivationTask().stopCultivating(player);
         }
     }

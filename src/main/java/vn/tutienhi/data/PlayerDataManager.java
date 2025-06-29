@@ -40,7 +40,6 @@ public class PlayerDataManager {
         }
 
         if (!playerFile.exists()) {
-            // "none" là ID mặc định cho người chưa chọn con đường tu luyện
             PlayerData newData = new PlayerData(initialRealm.getId(), 0, "none");
             playerDataMap.put(uuid, newData);
             savePlayerData(player);
@@ -71,7 +70,6 @@ public class PlayerDataManager {
             config.save(playerFile);
         } catch (IOException e) {
             plugin.getLogger().severe("Khong the luu du lieu cho nguoi choi " + player.getName());
-            e.printStackTrace();
         }
     }
     

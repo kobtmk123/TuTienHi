@@ -4,7 +4,7 @@ public class PlayerData {
     private String realmId;
     private double linhKhi;
     private boolean isCultivating;
-    private String cultivationPathId; // <-- THÊM MỚI
+    private String cultivationPathId;
 
     public PlayerData(String realmId, double linhKhi, String cultivationPathId) {
         this.realmId = realmId;
@@ -13,7 +13,6 @@ public class PlayerData {
         this.cultivationPathId = cultivationPathId;
     }
 
-    // --- Getters and Setters ---
     public String getRealmId() { return realmId; }
     public void setRealmId(String realmId) { this.realmId = realmId; }
     public double getLinhKhi() { return linhKhi; }
@@ -21,6 +20,6 @@ public class PlayerData {
     public void addLinhKhi(double amount) { this.linhKhi += amount; }
     public boolean isCultivating() { return isCultivating; }
     public void setCultivating(boolean cultivating) { isCultivating = cultivating; }
-    public String getCultivationPathId() { return cultivationPathId; } // <-- THÊM MỚI
-    public void setCultivationPathId(String cultivationPathId) { this.cultivationPathId = cultivationPathId; } // <-- THÊM MỚI
+    public String getCultivationPathId() { return cultivationPathId; }
+    public void setCultivationPathId(String cultivationPathId) { this.cultivationPathId = cultivationPathId; }
 }

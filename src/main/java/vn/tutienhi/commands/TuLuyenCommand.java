@@ -32,7 +32,6 @@ public class TuLuyenCommand implements CommandExecutor {
         } else {
             plugin.getCultivationTask().startCultivating(player);
         }
-
         return true;
     }
 }

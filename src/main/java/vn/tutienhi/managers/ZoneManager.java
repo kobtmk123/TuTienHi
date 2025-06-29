@@ -52,6 +52,9 @@ public class ZoneManager {
     public void loadZones() {
         zones.clear();
         File zonesFile = new File(plugin.getDataFolder(), "zones.yml");
+        if (!zonesFile.exists()) {
+            plugin.saveResource("zones.yml", false);
+        }
         FileConfiguration config = YamlConfiguration.loadConfiguration(zonesFile);
 
         List<Map<?, ?>> zoneList = config.getMapList("zones");
@@ -63,8 +66,7 @@ public class ZoneManager {
                 double multiplier = ((Number) zoneMap.get("multiplier")).doubleValue();
                 zones.add(new CultivationZone(world, pos1, pos2, multiplier));
              } catch (Exception e) {
-                 plugin.getLogger().warning("Loi khi tai mot khu vuc tu zones.yml! Vui long kiem tra dinh dang.");
-                 e.printStackTrace();
+                 plugin.getLogger().warning("Loi khi tai mot khu vuc tu zones.yml!");
              }
         }
         plugin.getLogger().info("Da tai " + zones.size() + " khu vuc linh khi.");
@@ -76,6 +78,6 @@ public class ZoneManager {
                 return zone.getMultiplier();
             }
         }
-        return 1.0; // Default multiplier
+        return 1.0;
     }
 }

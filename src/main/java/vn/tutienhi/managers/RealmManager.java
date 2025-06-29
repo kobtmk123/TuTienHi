@@ -1,7 +1,5 @@
 package vn.tutienhi.managers;
 
-import org.bukkit.attribute.Attribute;
-import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -16,35 +14,7 @@ import java.util.*;
 public class RealmManager {
 
     public static class Realm {
-        private final String id;
-        private final String displayName;
-        private final double maxLinhKhi;
-        private final double linhKhiPerTick;
-        private final double lightningDamage;
-        private final List<String> permanentEffects;
-        private final double bonusHealth;
-        private final double bonusDamage;
-
-        public Realm(String id, String displayName, double maxLinhKhi, double linhKhiPerTick, double lightningDamage, List<String> permanentEffects, double bonusHealth, double bonusDamage) {
-            this.id = id;
-            this.displayName = ChatUtil.colorize(displayName);
-            this.maxLinhKhi = maxLinhKhi;
-            this.linhKhiPerTick = linhKhiPerTick;
-            this.lightningDamage = lightningDamage;
-            this.permanentEffects = permanentEffects;
-            this.bonusHealth = bonusHealth;
-            this.bonusDamage = bonusDamage;
-        }
-
-        // Getters
-        public String getId() { return id; }
-        public String getDisplayName() { return displayName; }
-        public double getMaxLinhKhi() { return maxLinhKhi; }
-        public double getLinhKhiPerTick() { return linhKhiPerTick; }
-        public double getLightningDamage() { return lightningDamage; }
-        public List<String> getPermanentEffects() { return permanentEffects; }
-        public double getBonusHealth() { return bonusHealth; }
-        public double getBonusDamage() { return bonusDamage; }
+        // ... (Constructor và Getters)
     }
 
     private final TuTienHi plugin;
@@ -62,7 +32,6 @@ public class RealmManager {
         File realmsFile = new File(plugin.getDataFolder(), "realms.yml");
         FileConfiguration config = YamlConfiguration.loadConfiguration(realmsFile);
         
-        // Quay lại cách đọc đơn giản và an toàn nhất
         List<Map<?, ?>> realmList = config.getMapList("realms");
 
         for (Map<?, ?> realmMap : realmList) {
@@ -73,8 +42,7 @@ public class RealmManager {
                 double linhKhiPerTick = ((Number) realmMap.get("linh-khi-per-tick")).doubleValue();
                 
                 double lightningDamage = ((Number) realmMap.getOrDefault("lightning-damage", 0.0)).doubleValue();
-                // Ép kiểu an toàn cho List<String>
-                List<String> effects = (List<String>) realmMap.getOrDefault("permanent-effects", new ArrayList<String>());
+                List<String> effects = (List<String>) realmMap.getOrDefault("permanent-effects", Collections.emptyList());
                 double bonusHealth = ((Number) realmMap.getOrDefault("bonus-health", 0.0)).doubleValue();
                 double bonusDamage = ((Number) realmMap.getOrDefault("bonus-damage", 0.0)).doubleValue();
 
@@ -83,11 +51,11 @@ public class RealmManager {
                 realmsById.put(id, realm);
                 realmOrder.add(id);
             } catch (Exception e) {
-                plugin.getLogger().warning("Loi khi tai mot canh gioi tu realms.yml! ID: " + realmMap.get("id") + " - " + e.getMessage());
+                plugin.getLogger().warning("Loi khi tai mot canh gioi tu realms.yml! ID: " + realmMap.get("id"));
             }
         }
         plugin.getLogger().info("Da tai " + realmsById.size() + " canh gioi.");
     }
     
-    // ... các hàm còn lại giữ nguyên
+    // ... các hàm khác
 }

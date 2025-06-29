@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -23,39 +24,41 @@ import java.util.List;
 public class ShopGUI implements Listener {
 
     private final TuTienHi plugin;
-    private Inventory shopInventory;
 
     public ShopGUI(TuTienHi plugin) {
         this.plugin = plugin;
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
-        createShop();
     }
-    
-    private void createShop() {
+
+    public void open(Player player) {
         File shopFile = new File(plugin.getDataFolder(), "shop.yml");
         FileConfiguration config = YamlConfiguration.loadConfiguration(shopFile);
 
         String title = ChatUtil.colorize(config.getString("shop.title", "&8Shop"));
         int size = config.getInt("shop.size", 27);
-        shopInventory = Bukkit.createInventory(null, size, title);
+        Inventory shopInventory = Bukkit.createInventory(player, size, title);
         
         ConfigurationSection itemsSection = config.getConfigurationSection("shop.items");
-        if(itemsSection == null) return;
+        if (itemsSection == null) {
+            player.openInventory(shopInventory);
+            return;
+        }
 
         for (String slotStr : itemsSection.getKeys(false)) {
             try {
                 int slot = Integer.parseInt(slotStr);
+                if (slot >= size) continue;
+
                 ConfigurationSection itemConfig = itemsSection.getConfigurationSection(slotStr);
                 if (itemConfig == null) continue;
                 
-                ItemStack displayItem;
                 String customItemId = itemConfig.getString("item_id");
-                
-                // Nếu có item_id, lấy từ ItemManager
+                ItemStack displayItem;
+
                 if (customItemId != null) {
                     displayItem = plugin.getItemManager().getItem(customItemId);
                     if(displayItem == null) continue;
-                } else { // Nếu không, tạo vật phẩm trang trí
+                } else {
                     Material material = Material.valueOf(itemConfig.getString("material", "STONE").toUpperCase());
                     displayItem = new ItemStack(material);
                 }
@@ -63,7 +66,6 @@ public class ShopGUI implements Listener {
                 ItemMeta meta = displayItem.getItemMeta();
                 if (meta == null) continue;
 
-                // Ghi đè tên và lore nếu có trong shop.yml
                 if (itemConfig.contains("display-name")) {
                     meta.setDisplayName(ChatUtil.colorize(itemConfig.getString("display-name")));
                 }
@@ -82,67 +84,59 @@ public class ShopGUI implements Listener {
                 plugin.getLogger().warning("Loi khi tai vat pham trong shop o slot: " + slotStr);
             }
         }
-    }
-
-    public void open(Player player) {
         player.openInventory(shopInventory);
     }
     
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        if (event.getInventory() != shopInventory) return;
-        event.setCancelled(true);
-
-        Player player = (Player) event.getWhoClicked();
-        ItemStack clickedItem = event.getCurrentItem();
-        if (clickedItem == null || clickedItem.getType() == Material.AIR) return;
-        
-        File shopFile = new File(plugin.getDataFolder(), "shop.yml");
-        FileConfiguration config = YamlConfiguration.loadConfiguration(shopFile);
-        
-        String slotStr = String.valueOf(event.getSlot());
-        ConfigurationSection itemConfig = config.getConfigurationSection("shop.items." + slotStr);
-        if (itemConfig == null) return;
-        
-        // Xử lý nút đóng
-        if(itemConfig.getBoolean("close_on_click", false)) {
-            player.closeInventory();
-            return;
-        }
-
-        // Xử lý mua bán
-        double price = itemConfig.getDouble("price");
-        String itemId = itemConfig.getString("item_id");
-        if (price <= 0 || itemId == null) return; // Không phải vật phẩm có thể mua
-
-        Economy econ = plugin.getEconomy();
-        if (econ == null) {
-            player.sendMessage(ChatUtil.colorize("&cHe thong kinh te khong hoat dong. Vui long lien he Admin."));
-            return;
-        }
-        
-        // Kiểm tra tiền
-        if (econ.getBalance(player) < price) {
-            String message = plugin.getConfig().getString("messages.not-enough-money")
-                .replace("%cost%", String.format("%,.2f", price))
-                .replace("%balance%", String.format("%,.2f", econ.getBalance(player)));
-            player.sendMessage(ChatUtil.colorize(plugin.getConfig().getString("messages.prefix") + message));
-            return;
-        }
-        
-        // Trừ tiền và đưa vật phẩm
-        EconomyResponse r = econ.withdrawPlayer(player, price);
-        if (r.transactionSuccess()) {
-            ItemStack itemToGive = plugin.getItemManager().getItem(itemId);
-            if (itemToGive != null) {
-                player.getInventory().addItem(itemToGive);
-                String message = plugin.getConfig().getString("messages.purchase-success")
-                    .replace("%item_name%", clickedItem.getItemMeta().getDisplayName())
-                    .replace("%cost%", String.format("%,.2f", price));
-                player.sendMessage(ChatUtil.colorize(plugin.getConfig().getString("messages.prefix") + message));
+        if (!(event.getWhoClicked() instanceof Player)) return;
+        if (event.getView().getTitle().equals(ChatUtil.colorize(plugin.getShopConfig().getString("shop.title", "&8Shop")))) {
+            event.setCancelled(true);
+            
+            Player player = (Player) event.getWhoClicked();
+            ItemStack clickedItem = event.getCurrentItem();
+            if (clickedItem == null || clickedItem.getType() == Material.AIR) return;
+            
+            String slotStr = String.valueOf(event.getSlot());
+            ConfigurationSection itemConfig = plugin.getShopConfig().getConfigurationSection("shop.items." + slotStr);
+            if (itemConfig == null) return;
+            
+            if(itemConfig.getBoolean("close_on_click", false)) {
+                player.closeInventory();
+                return;
             }
-        } else {
-            player.sendMessage(ChatUtil.colorize("&cLoi giao dich: " + r.errorMessage));
+
+            double price = itemConfig.getDouble("price");
+            String itemId = itemConfig.getString("item_id");
+            if (price <= 0 || itemId == null) return;
+
+            Economy econ = plugin.getEconomy();
+            if (econ == null) {
+                player.sendMessage(ChatUtil.colorize("&cHe thong kinh te khong hoat dong."));
+                return;
+            }
+            
+            if (econ.getBalance(player) < price) {
+                String message = plugin.getConfig().getString("messages.not-enough-money")
+                    .replace("%cost%", String.format("%,.2f", price))
+                    .replace("%balance%", String.format("%,.2f", econ.getBalance(player)));
+                player.sendMessage(ChatUtil.colorize(plugin.getConfig().getString("messages.prefix") + message));
+                return;
+            }
+            
+            EconomyResponse r = econ.withdrawPlayer(player, price);
+            if (r.transactionSuccess()) {
+                ItemStack itemToGive = plugin.getItemManager().getItem(itemId);
+                if (itemToGive != null) {
+                    player.getInventory().addItem(itemToGive);
+                    String message = plugin.getConfig().getString("messages.purchase-success")
+                        .replace("%item_name%", clickedItem.getItemMeta().getDisplayName())
+                        .replace("%cost%", String.format("%,.2f", price));
+                    player.sendMessage(ChatUtil.colorize(plugin.getConfig().getString("messages.prefix") + message));
+                }
+            } else {
+                player.sendMessage(ChatUtil.colorize("&cLoi giao dich: " + r.errorMessage));
+            }
         }
     }
 }

@@ -25,9 +25,7 @@ public class ShopCommand implements CommandExecutor {
         }
         
         Player player = (Player) sender;
-        ShopGUI shopGUI = new ShopGUI(plugin);
-        shopGUI.open(player);
-
+        new ShopGUI(plugin).open(player);
         return true;
     }
 }
