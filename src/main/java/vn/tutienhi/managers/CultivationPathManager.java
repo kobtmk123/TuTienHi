@@ -8,7 +8,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import vn.tutienhi.TuTienHi;
 import vn.tutienhi.data.PlayerData;
-import vn.tutienhi.models.Realm; // SỬA LỖI: Thêm import này
+import vn.tutienhi.models.Realm; // Thêm import này
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,7 +17,26 @@ import java.util.UUID;
 public class CultivationPathManager {
 
     public static class Path {
-        // ... (Nội dung lớp Path giữ nguyên)
+        // ... (Giữ nguyên lớp Path)
+        private final String id;
+        private final String displayName;
+        private final double bonusHealth;
+        private final double damageMultiplier;
+        private final double swordDamageMultiplier;
+
+        public Path(String id, String displayName, double bonusHealth, double damageMultiplier, double swordDamageMultiplier) {
+            this.id = id;
+            this.displayName = displayName;
+            this.bonusHealth = bonusHealth;
+            this.damageMultiplier = damageMultiplier;
+            this.swordDamageMultiplier = swordDamageMultiplier;
+        }
+
+        public String getId() { return id; }
+        public String getDisplayName() { return displayName; }
+        public double getBonusHealth() { return bonusHealth; }
+        public double getDamageMultiplier() { return damageMultiplier; }
+        public double getSwordDamageMultiplier() { return swordDamageMultiplier; }
     }
 
     private final TuTienHi plugin;
@@ -29,7 +48,7 @@ public class CultivationPathManager {
     }
 
     public void loadPaths() {
-        // ... (Nội dung loadPaths giữ nguyên)
+        // ... (Giữ nguyên)
     }
     
     public Path getPath(String id) {
