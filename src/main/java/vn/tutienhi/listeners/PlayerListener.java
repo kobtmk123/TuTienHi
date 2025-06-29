@@ -24,9 +24,11 @@ public class PlayerListener implements Listener {
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         plugin.getPlayerDataManager().loadPlayerData(player);
-        // Áp dụng lại bonus máu và hiệu ứng khi người chơi tham gia
-        plugin.getRealmManager().applyRealmBonuses(player);
-        plugin.getCultivationPathManager().applyPathBonus(player);
+        // Dùng Bukkit.getScheduler() để chạy tác vụ sau 1 tick, đảm bảo người chơi đã load hoàn toàn
+        plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+            plugin.getRealmManager().applyRealmBonuses(player);
+            plugin.getCultivationPathManager().applyPathBonus(player);
+        }, 1L);
     }
 
     @EventHandler
@@ -44,7 +46,7 @@ public class PlayerListener implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onPlayerDamage(EntityDamageByEntityEvent event) {
         if (!(event.getDamager() instanceof Player)) return;
 
@@ -58,22 +60,17 @@ public class PlayerListener implements Listener {
         if (realm == null || path == null) return;
 
         double originalDamage = event.getDamage();
-        double finalDamage = originalDamage;
-
-        // Cộng bonus damage từ cảnh giới
-        finalDamage += realm.getBonusDamage();
+        double bonusDamage = realm.getBonusDamage();
+        double finalDamage;
         
-        // Nhân với hệ số của con đường tu luyện
-        finalDamage *= path.getDamageMultiplier();
-
-        // Kiểm tra nếu là Kiếm Tu và đang dùng kiếm
         ItemStack itemInHand = player.getInventory().getItemInMainHand();
-        if (itemInHand.getType().name().endsWith("_SWORD") && path.getId().equals("kiemtu")) {
-            // Chỉ áp dụng bonus của Kiếm Tu lên phần sát thương gốc của vũ khí
-            double baseWeaponDamage = originalDamage;
-            finalDamage = (baseWeaponDamage * path.getSwordDamageMultiplier()) + realm.getBonusDamage();
+        // Kiểm tra nếu là Kiếm Tu và đang dùng kiếm
+        if (path.getId().equals("kiemtu") && itemInHand.getType().name().endsWith("_SWORD")) {
+            finalDamage = (originalDamage * path.getSwordDamageMultiplier()) + bonusDamage;
+        } else { // Các trường hợp khác
+            finalDamage = (originalDamage * path.getDamageMultiplier()) + bonusDamage;
         }
-
+        
         event.setDamage(finalDamage);
     }
 }

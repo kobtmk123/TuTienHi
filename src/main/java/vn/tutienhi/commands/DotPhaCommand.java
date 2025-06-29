@@ -48,19 +48,16 @@ public class DotPhaCommand implements CommandExecutor {
             return true;
         }
         
-        // Đột phá thành công
         data.setRealmId(nextRealm.getId());
         data.setLinhKhi(0);
         
-        // Hiệu ứng sét đánh
         if (nextRealm.getLightningDamage() > 0) {
-            LightningStrike lightning = (LightningStrike) player.getWorld().spawnEntity(player.getLocation(), EntityType.LIGHTNING_BOLT);
-            lightning.setCausingPlayer(player); // Để không gây sát thương cho chính người chơi
-            // Thực tế, việc set sát thương của sét rất phức tạp, cách đơn giản là dùng hiệu ứng
-            // player.damage(nextRealm.getLightningDamage()); // Dòng này có thể gây chết người chơi, cần cân nhắc
+            // Sửa lại tên EntityType cho đúng
+            LightningStrike lightning = (LightningStrike) player.getWorld().spawnEntity(player.getLocation(), EntityType.LIGHTNING);
+            // Cách này sẽ tạo hiệu ứng sét nhưng không gây sát thương cho người chơi
+            lightning.setCausingPlayer(player);
         }
 
-        // Áp dụng các bonus của cảnh giới mới
         plugin.getRealmManager().applyRealmBonuses(player);
         plugin.getCultivationPathManager().applyPathBonus(player);
 
