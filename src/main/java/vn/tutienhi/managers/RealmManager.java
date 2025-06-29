@@ -9,14 +9,11 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import vn.tutienhi.TuTienHi;
 import vn.tutienhi.data.PlayerData;
-import vn.tutienhi.models.Realm; // THÊM DÒNG IMPORT NÀY
-
+import vn.tutienhi.models.Realm;
 import java.io.File;
 import java.util.*;
 
 public class RealmManager {
-
-    // KHÔNG CÒN "public static class Realm" ở đây nữa
 
     private final TuTienHi plugin;
     private final Map<String, Realm> realmsById = new LinkedHashMap<>();
@@ -47,7 +44,6 @@ public class RealmManager {
                 double bonusHealth = ((Number) realmMap.getOrDefault("bonus-health", 0.0)).doubleValue();
                 double bonusDamage = ((Number) realmMap.getOrDefault("bonus-damage", 0.0)).doubleValue();
 
-                // Bây giờ chúng ta gọi constructor của lớp Realm riêng biệt
                 Realm realm = new Realm(id, displayName, maxLinhKhi, linhKhiPerTick, lightningDamage, effects, bonusHealth, bonusDamage);
                 
                 realmsById.put(id, realm);
@@ -62,7 +58,7 @@ public class RealmManager {
     public void applyRealmBonuses(Player player) {
         PlayerData data = plugin.getPlayerDataManager().getPlayerData(player);
         if (data == null) return;
-        Realm realm = getRealm(data.getRealmId()); // <--- Không cần RealmManager.Realm nữa
+        Realm realm = getRealm(data.getRealmId());
         if (realm == null) return;
 
         player.getActivePotionEffects().stream()
@@ -84,24 +80,13 @@ public class RealmManager {
         }
     }
     
-    // Các hàm trả về cũng thay đổi kiểu dữ liệu
-    public Realm getRealm(String id) { 
-        return realmsById.get(id); 
-    }
-    public Realm getInitialRealm() { 
-        if (realmOrder.isEmpty()) return null; 
-        return getRealm(realmOrder.get(0)); 
-    }
+    public Realm getRealm(String id) { return realmsById.get(id); }
+    public Realm getInitialRealm() { if (realmOrder.isEmpty()) return null; return getRealm(realmOrder.get(0)); }
     public Realm getNextRealm(String currentRealmId) {
         int currentIndex = realmOrder.indexOf(currentRealmId);
         if (currentIndex == -1 || currentIndex + 1 >= realmOrder.size()) return null;
         return getRealm(realmOrder.get(currentIndex + 1));
     }
-    
-    public List<String> getRealmOrder() { 
-        return realmOrder; 
-    }
-    public int getTotalRealms() { 
-        return realmOrder.size(); 
-    }
+    public List<String> getRealmOrder() { return realmOrder; }
+    public int getTotalRealms() { return realmOrder.size(); }
 }
