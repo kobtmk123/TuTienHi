@@ -8,21 +8,14 @@ on:
   pull_request:
     branches: [ "main" ]
 
-# Các công việc (jobs) cần thực hiện
 jobs:
   build:
-    # Chọn một máy chủ ảo chạy hệ điều hành Ubuntu phiên bản mới nhất
     runs-on: ubuntu-latest
 
-    # Các bước (steps) chi tiết của công việc
     steps:
-      # Bước 1: Tải mã nguồn của bạn từ kho chứa về máy chủ ảo
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # ====================================================================
-      # == SỬA LỖI: ĐỔI PHIÊN BẢN JAVA VỀ 17 ĐỂ TƯƠNG THÍCH VỚI SERVER ==
-      # ====================================================================
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
@@ -30,13 +23,15 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      # Bước 3: Chạy lệnh build của Maven để tạo file .jar
       - name: Build with Maven
         run: mvn -B package --file pom.xml
 
-      # Bước 4: Tải lên file .jar đã được tạo ra làm một "Artifact"
+      # ====================================================================
+      # SỬA LỖI: Cập nhật lại tên file cho đúng với phiên bản 2.0.0
+      # ====================================================================
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: TuTienHi-Plugin
-          path: target/TuTienHi-1.0.0.jar
+          # Đường dẫn đúng phải là TuTienHi-2.0.0.jar
+          path: target/TuTienHi-2.0.0.jar 
