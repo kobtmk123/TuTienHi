@@ -1,40 +1,38 @@
-# Cài đặt chung của plugin TuTienHi
-settings:
-  # Số tick (20 tick = 1 giây) để chạy vòng lặp tu luyện (tăng linh khí, tạo hiệu ứng)
-  cultivation-tick-rate: 20
-  # Hiệu ứng hạt khi tu luyện
-  particle-effect:
-    # Tên hiệu ứng particle của Minecraft. Danh sách: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Particle.html
-    name: "CLOUD"
-    # Số lượng hạt sinh ra mỗi lần
-    count: 10
-    # Bán kính vòng tròn hiệu ứng
-    radius: 1.0
+# ... các cài đặt cũ ...
 
-# Tất cả các tin nhắn của plugin
+# Tat ca cac tin nhan cua plugin
 messages:
-  prefix: "&b&lTuTiênHi &r&f» "
-  no-permission: "&cBạn không có quyền để sử dụng lệnh này."
+  prefix: "&b&lTuTienHi &r&f» "
+  no-permission: "&cBan khong co quyen de su dung lenh nay."
   player-only-command: "&cLệnh này chỉ có thể được sử dụng bởi người chơi."
-  reload-success: "&aĐã tải lại tất cả các file cấu hình của TuTienHi!"
+  reload-success: "&aDa tai lai tat ca cac file cau hinh cua TuTienHi!"
   
-  # Lệnh /tuluyen
-  cultivate-start: "&aBạn đã tiến vào trạng thái tu luyện. Ngưng thần tĩnh khí, hấp thụ linh khí trời đất!"
-  cultivate-stop: "&eBạn đã thoát khỏi trạng thái tu luyện."
-  already-cultivating: "&cBạn đang trong trạng thái tu luyện rồi."
+  # Lenh /tuluyen
+  cultivate-start: "&aBan da tien vao trang thai tu luyen. Ngu than tinh khi, hap thu linh khi troi dat!"
+  cultivate-stop: "&eBan da thoat khoi trang thai tu luyen."
+  already-cultivating: "&cBan dang trong trang thai tu luyen roi."
   
-  # Lệnh /dotpha
-  breakthrough-success: "&d&lCHÚC MỪNG! &fBạn đã đột phá thành công, cảnh giới hiện tại: &b%new_realm_name%"
-  breakthrough-fail-not-enough-linh-khi: "&cLinh khí chưa đủ, không thể đột phá! Cần &e%required%&c, hiện có &e%current%&c."
-  breakthrough-fail-max-level: "&6Bạn đã đạt đến cảnh giới cao nhất, không thể đột phá nữa!"
+  # Lenh /dotpha
+  breakthrough-success: "&d&lCHUC MUNG! &fBan da dot pha thanh cong, canh gioi hien tai: &b%new_realm_name%"
+  breakthrough-fail-not-enough-linh-khi: "&cLinh khi chua du, khong the dot pha! Can &e%required%&c, hien co &e%current%&c."
+  breakthrough-fail-max-level: "&6Ban da dat den canh gioi cao nhat, khong the dot pha nua!"
+
+  # Vat Pham
+  item-usage: "&aBan da su dung &r%item_name%&a va nhan duoc &b+%amount% &alinh khi!"
+  item-give-success: "&aDa trao &e%amount% x &r%item_name% &acho nguoi choi &b%player%&a."
+  item-not-found: "&cKhong tim thay vat pham voi ID: &e%id%"
+  player-not-found: "&cKhong tim thay nguoi choi: &e%player%"
   
-  # Scoreboard
-  scoreboard:
-    title: "&b&lTU TIÊN HI"
-    lines:
-      - "&f"
-      - "&eNgười chơi: &f%player_name%"
-      - "&eCảnh Giới: &f%realm_name%"
-      - "&eLinh Khí: &b%linh_khi%&f/&b%max_linh_khi%"
-      - ""
-      - "&7v1.0.0"
+  # Shop
+  shop-title: "&8Cua Hang Tu Tien"
+  not-enough-money: "&cBan khong du tien! Can &e%cost%&c, ban chi co &e%balance%&c."
+  purchase-success: "&aBan da mua thanh cong &r%item_name%&a voi gia &e%cost%&a."
+
+  # Con Duong Tu Tap
+  cultivation-path-help:
+    - "&eChon con duong tu luyen cua ban:"
+    - "&c/kiemtu &7- Tro thanh Kiem Tu, bac thay ve kiem phap."
+    - "&6/phattu &7- Tro thanh Phat Tu, than the bat hoai."
+    - "&5/matu &7- Tro thanh Ma Tu, suc manh huy diet."
+  path-chosen: "&aBan da chon con duong &r%path_name%&a. Khong the thay doi!"
+  path-already-chosen: "&cBan da chon con duong tu tap roi, khong the thay doi."

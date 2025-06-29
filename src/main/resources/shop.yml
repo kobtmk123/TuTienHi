@@ -1,0 +1,30 @@
+shop:
+  title: "&1&lShop Tien Gioi"
+  size: 27
+  items:
+    '11': # Slot 11 (o thu 3, hang 2)
+      item_id: 'cuonlinhkhi_hapham'
+      price: 1000.0
+      lore:
+        - "&fGia: &e%price%"
+    '12':
+      item_id: 'cuonlinhkhi_trungpham'
+      price: 2500.0
+      lore:
+        - "&fGia: &e%price%"
+    '14':
+      item_id: 'cuonlinhkhi_thuongpham'
+      price: 7000.0
+      lore:
+        - "&fGia: &e%price%"
+    '15':
+      item_id: 'cuonlinhkhi_tuyetpham'
+      price: 15000.0
+      lore:
+        - "&fGia: &e%price%"
+    '26': # Slot cuoi cung
+      display-name: "&cDong"
+      material: "BARRIER"
+      lore:
+        - "&7Nhan de thoat khoi cua hang."
+      close_on_click: true

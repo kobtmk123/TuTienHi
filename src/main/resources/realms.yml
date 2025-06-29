@@ -1,40 +1,38 @@
-# Hệ thống cảnh giới
-# id: Mã định danh duy nhất (không dấu, không cách)
-# display-name: Tên hiển thị trong game (hỗ trợ mã màu)
-# max-linh-khi: Lượng linh khí tối đa cần để đột phá khỏi cảnh giới này
-# linh-khi-per-second: Lượng linh khí nhận được mỗi giây khi tu luyện ở cảnh giới này
+# ... mô tả cũ ...
+# lightning-damage: Sat thuong khi set danh luc dot pha (0 = khong co set)
+# permanent-effects: Danh sach cac hieu ung thuoc vinh vien. Dinh dang: 'TEN_HIEU_UNG:CAP_DO'
+# bonus-health: So luong mau duoc cong them (1.0 = nua trai tim, 2.0 = mot trai tim)
+# bonus-damage: Sat thuong vat ly duoc cong them
 realms:
   - id: "pham_nhan"
-    display-name: "&7Phàm Nhân"
+    display-name: "&7Pham Nhan"
     max-linh-khi: 100
-    linh-khi-per-second: 1
-  - id: "truc_co_so_ky"
-    display-name: "&aTrúc Cơ - Sơ Kỳ"
-    max-linh-khi: 250
-    linh-khi-per-second: 2
-  - id: "truc_co_trung_ky"
-    display-name: "&aTrúc Cơ - Trung Kỳ"
-    max-linh-khi: 500
-    linh-khi-per-second: 3
-  - id: "truc_co_hau_ky"
-    display-name: "&aTrúc Cơ - Hậu Kỳ"
-    max-linh-khi: 750
-    linh-khi-per-second: 4
-  - id: "truc_co_dinh_phong"
-    display-name: "&aTrúc Cơ - Đỉnh Phong"
-    max-linh-khi: 1000
-    linh-khi-per-second: 5
-  - id: "truc_co_vien_man"
-    display-name: "&2&lTrúc Cơ - Viên Mãn"
-    max-linh-khi: 1200
-    linh-khi-per-second: 6
+    linh-khi-per-tick: 1
+    lightning-damage: 0.0
+    permanent-effects: []
+    bonus-health: 0.0
+    bonus-damage: 0.0
+  # ...
   - id: "ket_dan_so_ky"
-    display-name: "&eKết Đan - Sơ Kỳ"
+    display-name: "&eKet Dan - So Ky"
     max-linh-khi: 2000
-    linh-khi-per-second: 8
-  # ... Cứ tiếp tục thêm các cảnh giới khác theo cấu trúc này
-  # Ví dụ cảnh giới cuối cùng
+    linh-khi-per-tick: 8
+    lightning-damage: 5.0
+    permanent-effects:
+      - 'SPEED:0'
+      - 'JUMP:0'
+    bonus-health: 4.0 # +2 trai tim
+    bonus-damage: 1.0
+  # ...
   - id: "do_kiep_vien_man"
-    display-name: "&5&lĐộ Kiếp - Viên Mãn"
+    display-name: "&5&lDo Kiep - Vien Man"
     max-linh-khi: 1000000
-    linh-khi-per-second: 500
+    linh-khi-per-tick: 500
+    lightning-damage: 20.0
+    permanent-effects:
+      - 'SPEED:2'
+      - 'STRENGTH:1'
+      - 'REGENERATION:1'
+      - 'FIRE_RESISTANCE:0'
+    bonus-health: 20.0 # +10 trai tim
+    bonus-damage: 10.0

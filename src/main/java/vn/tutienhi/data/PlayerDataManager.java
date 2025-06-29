@@ -5,7 +5,6 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import vn.tutienhi.TuTienHi;
 import vn.tutienhi.managers.RealmManager;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -36,12 +35,13 @@ public class PlayerDataManager {
         
         RealmManager.Realm initialRealm = plugin.getRealmManager().getInitialRealm();
         if (initialRealm == null) {
-            plugin.getLogger().severe("KHONG THE TAI CANH GIOI KHOI DAU! Vui long kiem tra file realms.yml.");
+            plugin.getLogger().severe("KHONG THE TAI CANH GIOI KHOI DAU!");
             return;
         }
 
         if (!playerFile.exists()) {
-            PlayerData newData = new PlayerData(initialRealm.getId(), 0);
+            // "none" là ID mặc định cho người chưa chọn con đường tu luyện
+            PlayerData newData = new PlayerData(initialRealm.getId(), 0, "none");
             playerDataMap.put(uuid, newData);
             savePlayerData(player);
             return;
@@ -50,7 +50,8 @@ public class PlayerDataManager {
         FileConfiguration config = YamlConfiguration.loadConfiguration(playerFile);
         String realmId = config.getString("realm", initialRealm.getId());
         double linhKhi = config.getDouble("linh-khi", 0);
-        playerDataMap.put(uuid, new PlayerData(realmId, linhKhi));
+        String pathId = config.getString("cultivation-path", "none");
+        playerDataMap.put(uuid, new PlayerData(realmId, linhKhi, pathId));
     }
 
     public void savePlayerData(Player player) {
@@ -64,6 +65,7 @@ public class PlayerDataManager {
         config.set("name", player.getName());
         config.set("realm", data.getRealmId());
         config.set("linh-khi", data.getLinhKhi());
+        config.set("cultivation-path", data.getCultivationPathId());
 
         try {
             config.save(playerFile);
@@ -74,8 +76,10 @@ public class PlayerDataManager {
     }
     
     public void unloadPlayerData(Player player) {
-        savePlayerData(player);
-        playerDataMap.remove(player.getUniqueId());
+        if (playerDataMap.containsKey(player.getUniqueId())) {
+            savePlayerData(player);
+            playerDataMap.remove(player.getUniqueId());
+        }
     }
     
     public void saveAllPlayerData() {

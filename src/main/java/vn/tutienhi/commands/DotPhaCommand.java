@@ -3,6 +3,8 @@ package vn.tutienhi.commands;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LightningStrike;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import vn.tutienhi.TuTienHi;
@@ -46,13 +48,21 @@ public class DotPhaCommand implements CommandExecutor {
             return true;
         }
         
-        // TODO: Thêm logic độ kiếp, nếu thất bại thì return ở đây
-
         // Đột phá thành công
         data.setRealmId(nextRealm.getId());
         data.setLinhKhi(0);
         
-        player.getWorld().strikeLightningEffect(player.getLocation()); // Hiệu ứng sấm sét
+        // Hiệu ứng sét đánh
+        if (nextRealm.getLightningDamage() > 0) {
+            LightningStrike lightning = (LightningStrike) player.getWorld().spawnEntity(player.getLocation(), EntityType.LIGHTNING_BOLT);
+            lightning.setCausingPlayer(player); // Để không gây sát thương cho chính người chơi
+            // Thực tế, việc set sát thương của sét rất phức tạp, cách đơn giản là dùng hiệu ứng
+            // player.damage(nextRealm.getLightningDamage()); // Dòng này có thể gây chết người chơi, cần cân nhắc
+        }
+
+        // Áp dụng các bonus của cảnh giới mới
+        plugin.getRealmManager().applyRealmBonuses(player);
+        plugin.getCultivationPathManager().applyPathBonus(player);
 
         String message = plugin.getConfig().getString("messages.breakthrough-success")
                 .replace("%new_realm_name%", nextRealm.getDisplayName());

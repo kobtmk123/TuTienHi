@@ -1,10 +1,10 @@
 package vn.tutienhi.managers;
 
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import vn.tutienhi.TuTienHi;
 import vn.tutienhi.utils.ChatUtil;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -18,18 +18,32 @@ public class RealmManager {
         private final String displayName;
         private final double maxLinhKhi;
         private final double linhKhiPerTick;
+        private final double lightningDamage;
+        private final List<String> permanentEffects;
+        private final double bonusHealth;
+        private final double bonusDamage;
 
-        public Realm(String id, String displayName, double maxLinhKhi, double linhKhiPerTick) {
+
+        public Realm(String id, String displayName, double maxLinhKhi, double linhKhiPerTick, double lightningDamage, List<String> permanentEffects, double bonusHealth, double bonusDamage) {
             this.id = id;
             this.displayName = ChatUtil.colorize(displayName);
             this.maxLinhKhi = maxLinhKhi;
             this.linhKhiPerTick = linhKhiPerTick;
+            this.lightningDamage = lightningDamage;
+            this.permanentEffects = permanentEffects;
+            this.bonusHealth = bonusHealth;
+            this.bonusDamage = bonusDamage;
         }
 
+        // Getters
         public String getId() { return id; }
         public String getDisplayName() { return displayName; }
         public double getMaxLinhKhi() { return maxLinhKhi; }
         public double getLinhKhiPerTick() { return linhKhiPerTick; }
+        public double getLightningDamage() { return lightningDamage; }
+        public List<String> getPermanentEffects() { return permanentEffects; }
+        public double getBonusHealth() { return bonusHealth; }
+        public double getBonusDamage() { return bonusDamage; }
     }
 
     private final TuTienHi plugin;
@@ -54,12 +68,16 @@ public class RealmManager {
                 String displayName = (String) realmMap.get("display-name");
                 double maxLinhKhi = ((Number) realmMap.get("max-linh-khi")).doubleValue();
                 double linhKhiPerTick = ((Number) realmMap.get("linh-khi-per-tick")).doubleValue();
+                double lightningDamage = ((Number) realmMap.getOrDefault("lightning-damage", 0.0)).doubleValue();
+                List<String> effects = (List<String>) realmMap.getOrDefault("permanent-effects", new ArrayList<>());
+                double bonusHealth = ((Number) realmMap.getOrDefault("bonus-health", 0.0)).doubleValue();
+                double bonusDamage = ((Number) realmMap.getOrDefault("bonus-damage", 0.0)).doubleValue();
             
-                Realm realm = new Realm(id, displayName, maxLinhKhi, linhKhiPerTick);
+                Realm realm = new Realm(id, displayName, maxLinhKhi, linhKhiPerTick, lightningDamage, effects, bonusHealth, bonusDamage);
                 realmsById.put(id, realm);
                 realmOrder.add(id);
             } catch (Exception e) {
-                plugin.getLogger().warning("Loi khi tai mot canh gioi tu realms.yml! Vui long kiem tra dinh dang.");
+                plugin.getLogger().warning("Loi khi tai mot canh gioi tu realms.yml! ID: " + realmMap.get("id"));
                 e.printStackTrace();
             }
         }
@@ -78,8 +96,16 @@ public class RealmManager {
     public Realm getNextRealm(String currentRealmId) {
         int currentIndex = realmOrder.indexOf(currentRealmId);
         if (currentIndex == -1 || currentIndex + 1 >= realmOrder.size()) {
-            return null; // No next realm or current realm not found
+            return null;
         }
         return getRealm(realmOrder.get(currentIndex + 1));
+    }
+
+    public List<Realm> getRealms() {
+        return new ArrayList<>(realmsById.values());
+    }
+
+    public int getTotalRealms() {
+        return realmOrder.size();
     }
 }

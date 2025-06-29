@@ -1,0 +1,16 @@
+paths:
+  kiemtu:
+    display-name: "&cKiem Tu"
+    bonus-health: 0.0
+    damage-multiplier: 1.0
+    sword-damage-multiplier: 1.5
+  phattu:
+    display-name: "&6Phat Tu"
+    bonus-health: 4.0
+    damage-multiplier: 1.0
+    sword-damage-multiplier: 1.0
+  matu:
+    display-name: "&5Ma Tu"
+    bonus-health: -4.0
+    damage-multiplier: 1.25
+    sword-damage-multiplier: 1.25

@@ -1,0 +1,45 @@
+items:
+  cuonlinhkhi_hapham:
+    material: PAPER
+    display-name: "&fCuon Linh Khi [Ha Pham]"
+    lore:
+      - "&7Mot cuon da co chua dung mot luong"
+      - "&7linh khi nho. Chuot phai de su dung."
+      - ""
+      - "&e&lGia tri: &b+30 Linh Khi"
+    custom-model-data: 0
+    actions:
+      - 'add_linhkhi:30'
+  cuonlinhkhi_trungpham:
+    material: PAPER
+    display-name: "&aCuon Linh Khi [Trung Pham]"
+    lore:
+      - "&7Linh khi co dong, tinh khiet hon."
+      - "&7Chuot phai de su dung."
+      - ""
+      - "&e&lGia tri: &b+75 Linh Khi"
+    custom-model-data: 1
+    actions:
+      - 'add_linhkhi:75'
+  cuonlinhkhi_thuongpham:
+    material: PAPER
+    display-name: "&bCuon Linh Khi [Thuong Pham]"
+    lore:
+      - "&7Chua dung luong linh khi khong lo."
+      - "&7Chuot phai de su dung."
+      - ""
+      - "&e&lGia tri: &b+200 Linh Khi"
+    custom-model-data: 2
+    actions:
+      - 'add_linhkhi:200'
+  cuonlinhkhi_tuyetpham:
+    material: PAPER
+    display-name: "&d&lCuon Linh Khi [Tuyet Pham]"
+    lore:
+      - "&7Vat pham hiem co, co the giup"
+      - "&7ban dot pha trong gang tac."
+      - ""
+      - "&e&lGia tri: &b+400 Linh Khi"
+    custom-model-data: 3
+    actions:
+      - 'add_linhkhi:400'

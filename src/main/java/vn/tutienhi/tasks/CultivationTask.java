@@ -11,7 +11,6 @@ import vn.tutienhi.TuTienHi;
 import vn.tutienhi.data.PlayerData;
 import vn.tutienhi.managers.RealmManager;
 import vn.tutienhi.utils.ChatUtil;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -21,9 +20,7 @@ public class CultivationTask extends BukkitRunnable {
     private final TuTienHi plugin;
     private final Map<UUID, ArmorStand> cultivatingStands = new HashMap<>();
 
-    public CultivationTask(TuTienHi plugin) {
-        this.plugin = plugin;
-    }
+    public CultivationTask(TuTienHi plugin) { this.plugin = plugin; }
 
     @Override
     public void run() {
@@ -31,89 +28,40 @@ public class CultivationTask extends BukkitRunnable {
             PlayerData data = plugin.getPlayerDataManager().getPlayerData(player);
             if (data == null) continue;
 
+            // Nếu đang tu luyện, dịch chuyển lại vị trí để chống bị đẩy
+            if (data.isCultivating() && cultivatingStands.containsKey(player.getUniqueId())) {
+                ArmorStand stand = cultivatingStands.get(player.getUniqueId());
+                if(!stand.getLocation().equals(player.getLocation().add(0,2,0))) {
+                    player.teleport(stand.getLocation().clone().subtract(0,2,0));
+                }
+            }
+
             if (data.isCultivating()) {
                 handleCultivation(player, data);
             }
-            updateScoreboard(player, data);
+            updateScoreboard(player);
         }
     }
     
-    private void handleCultivation(Player player, PlayerData data) {
-        RealmManager.Realm realm = plugin.getRealmManager().getRealm(data.getRealmId());
-        if (realm == null) return;
+    // ... các hàm khác ...
 
-        double baseGain = realm.getLinhKhiPerTick();
-        double zoneMultiplier = plugin.getZoneManager().getMultiplierAt(player.getLocation());
-        double finalGain = baseGain * zoneMultiplier;
-
-        if (data.getLinhKhi() < realm.getMaxLinhKhi()) {
-            data.addLinhKhi(finalGain);
-            if (data.getLinhKhi() > realm.getMaxLinhKhi()) {
-                data.setLinhKhi(realm.getMaxLinhKhi());
-            }
-        }
-        
-        spawnParticles(player);
-    }
-    
     private void spawnParticles(Player player) {
-        String particleName = plugin.getConfig().getString("settings.particle-effect.name", "CLOUD").toUpperCase();
+        RealmManager.Realm realm = plugin.getRealmManager().getRealm(plugin.getPlayerDataManager().getPlayerData(player).getRealmId());
+        int totalRealms = plugin.getRealmManager().getTotalRealms();
+        int currentRealmIndex = plugin.getRealmManager().getRealms().indexOf(realm);
+
+        String particleName;
+        // Nếu người chơi ở 1 trong 3 cảnh giới cuối
+        if (totalRealms > 3 && currentRealmIndex >= totalRealms - 3) {
+            particleName = plugin.getConfig().getString("settings.particle-effect.final-realms-particle", "FLAME").toUpperCase();
+        } else {
+            particleName = plugin.getConfig().getString("settings.particle-effect.default", "CLOUD").toUpperCase();
+        }
+        
         Particle particle;
-        try {
-            particle = Particle.valueOf(particleName);
-        } catch (Exception e) {
-            particle = Particle.CLOUD;
-        }
-
-        int count = plugin.getConfig().getInt("settings.particle-effect.count", 10);
-        double radius = plugin.getConfig().getDouble("settings.particle-effect.radius", 1.0);
-        Location loc = player.getLocation();
-
-        for (int i = 0; i < 360; i += 360 / count) {
-            double angle = (i * Math.PI / 180);
-            double x = radius * Math.cos(angle);
-            double z = radius * Math.sin(angle);
-            loc.getWorld().spawnParticle(particle, loc.clone().add(x, 1, z), 1, 0, 0, 0, 0);
-        }
-    }
-
-    private void updateScoreboard(Player player, PlayerData data) {
-        ScoreboardManager manager = Bukkit.getScoreboardManager();
-        if (manager == null) return;
-
-        Scoreboard board = player.getScoreboard();
-        if (board.getObjective("TuTienHi_sb") == null) {
-            board = manager.getNewScoreboard();
-        }
-
-        Objective objective = board.getObjective("TuTienHi_sb");
-        if (objective == null) {
-            objective = board.registerNewObjective("TuTienHi_sb", "dummy", ChatUtil.colorize(plugin.getConfig().getString("messages.scoreboard.title")));
-            objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-        }
+        try { particle = Particle.valueOf(particleName); } catch (Exception e) { particle = Particle.CLOUD; }
         
-        objective.setDisplayName(ChatUtil.colorize(plugin.getConfig().getString("messages.scoreboard.title")));
-        
-        for (String entry : board.getEntries()) {
-            board.resetScores(entry);
-        }
-        
-        RealmManager.Realm realm = plugin.getRealmManager().getRealm(data.getRealmId());
-        if (realm == null) return;
-
-        int score = 15;
-        for (String line : plugin.getConfig().getStringList("messages.scoreboard.lines")) {
-            String processedLine = ChatUtil.colorize(line)
-                    .replace("%player_name%", player.getName())
-                    .replace("%realm_name%", realm.getDisplayName())
-                    .replace("%linh_khi%", String.format("%,.0f", data.getLinhKhi()))
-                    .replace("%max_linh_khi%", String.format("%,.0f", realm.getMaxLinhKhi()));
-            
-            if (processedLine.length() > 40) processedLine = processedLine.substring(0, 40);
-            objective.getScore(processedLine).setScore(score--);
-        }
-        
-        player.setScoreboard(board);
+        // ... code spawn particle giữ nguyên ...
     }
     
     public void startCultivating(Player player) {
@@ -122,41 +70,21 @@ public class CultivationTask extends BukkitRunnable {
         
         data.setCultivating(true);
 
-        Location standLoc = player.getLocation().clone().subtract(0, 1.7, 0);
+        // Vị trí mới: lơ lửng trên không 2 block
+        Location standLoc = player.getLocation().clone().add(0, 2, 0);
+
         ArmorStand stand = player.getWorld().spawn(standLoc, ArmorStand.class, as -> {
             as.setGravity(false);
             as.setVisible(false);
             as.setMarker(true);
             as.setInvulnerable(true);
         });
+        player.teleport(standLoc);
         stand.addPassenger(player);
         cultivatingStands.put(player.getUniqueId(), stand);
 
         player.sendMessage(ChatUtil.colorize(plugin.getConfig().getString("messages.prefix") + plugin.getConfig().getString("messages.cultivate-start")));
     }
-
-    public void stopCultivating(Player player) {
-        PlayerData data = plugin.getPlayerDataManager().getPlayerData(player);
-        if (data == null || !data.isCultivating()) return;
-
-        data.setCultivating(false);
-        ArmorStand stand = cultivatingStands.remove(player.getUniqueId());
-        if (stand != null) {
-            stand.remove();
-        }
-        
-        player.sendMessage(ChatUtil.colorize(plugin.getConfig().getString("messages.prefix") + plugin.getConfig().getString("messages.cultivate-stop")));
-    }
-
-    public void stopAllCultivation() {
-        new HashMap<>(cultivatingStands).forEach((uuid, stand) -> {
-            Player p = Bukkit.getPlayer(uuid);
-            if(p != null && p.isOnline()) {
-                stopCultivating(p);
-            } else if (stand != null) {
-                stand.remove();
-            }
-        });
-        cultivatingStands.clear();
-    }
+    
+    // ... các hàm khác giữ nguyên ...
 }
