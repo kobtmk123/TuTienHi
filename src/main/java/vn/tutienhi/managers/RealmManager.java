@@ -14,11 +14,12 @@ import vn.tutienhi.utils.ChatUtil;
 
 import java.io.File;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class RealmManager {
 
+    // Lớp Realm giữ nguyên, không cần thay đổi
     public static class Realm {
-        // ... (Nội dung lớp Realm giữ nguyên)
         private final String id;
         private final String displayName;
         private final double maxLinhKhi;
@@ -63,34 +64,46 @@ public class RealmManager {
         realmOrder.clear();
         File realmsFile = new File(plugin.getDataFolder(), "realms.yml");
         FileConfiguration config = YamlConfiguration.loadConfiguration(realmsFile);
-        List<Map<?, ?>> realmList = config.getMapList("realms");
-        for (Map<?, ?> realmMap : realmList) {
-            try {
-                String id = (String) realmMap.get("id");
-                String displayName = (String) realmMap.get("display-name");
-                double maxLinhKhi = ((Number) realmMap.get("max-linh-khi")).doubleValue();
-                double linhKhiPerTick = ((Number) realmMap.get("linh-khi-per-tick")).doubleValue();
-                double lightningDamage = ((Number) realmMap.getOrDefault("lightning-damage", 0.0)).doubleValue();
-                List<String> effects = (List<String>) realmMap.getOrDefault("permanent-effects", new ArrayList<>());
-                double bonusHealth = ((Number) realmMap.getOrDefault("bonus-health", 0.0)).doubleValue();
-                double bonusDamage = ((Number) realmMap.getOrDefault("bonus-damage", 0.0)).doubleValue();
+        
+        // Sửa lại cách lấy dữ liệu từ config để an toàn hơn
+        ConfigurationSection realmsSection = config.getConfigurationSection("realms");
+        if (realmsSection == null) {
+             plugin.getLogger().warning("Khong tim thay muc 'realms' trong realms.yml!");
+             return;
+        }
 
-                // =================================================================
-                // SỬA LỖI: Sắp xếp lại các tham số cho đúng với constructor
-                // Thứ tự đúng: id, name, linhkhi, tick, lightning, effects, health, damage
-                // =================================================================
+        for (String key : realmsSection.getKeys(false)) {
+            // Thay vì dùng getMapList, chúng ta sẽ duyệt qua từng section
+            ConfigurationSection realmMap = realmsSection.getConfigurationSection(key);
+            if (realmMap == null) continue;
+
+            try {
+                // Lấy các giá trị trực tiếp từ section
+                String id = realmMap.getString("id");
+                String displayName = realmMap.getString("display-name");
+                double maxLinhKhi = realmMap.getDouble("max-linh-khi");
+                double linhKhiPerTick = realmMap.getDouble("linh-khi-per-tick");
+                double lightningDamage = realmMap.getDouble("lightning-damage", 0.0);
+                
+                // Sửa lỗi đọc List<String>
+                List<String> effects = realmMap.getStringList("permanent-effects");
+
+                double bonusHealth = realmMap.getDouble("bonus-health", 0.0);
+                double bonusDamage = realmMap.getDouble("bonus-damage", 0.0);
+                
                 Realm realm = new Realm(id, displayName, maxLinhKhi, linhKhiPerTick, lightningDamage, effects, bonusHealth, bonusDamage);
                 
                 realmsById.put(id, realm);
                 realmOrder.add(id);
             } catch (Exception e) {
-                plugin.getLogger().warning("Loi khi tai mot canh gioi tu realms.yml! ID: " + realmMap.get("id"));
+                plugin.getLogger().warning("Loi khi tai mot canh gioi tu realms.yml! Key: " + key);
                 e.printStackTrace();
             }
         }
         plugin.getLogger().info("Da tai " + realmsById.size() + " canh gioi.");
     }
-
+    
+    // Các hàm còn lại giữ nguyên
     public void applyRealmBonuses(Player player) {
         PlayerData data = plugin.getPlayerDataManager().getPlayerData(player);
         if (data == null) return;
