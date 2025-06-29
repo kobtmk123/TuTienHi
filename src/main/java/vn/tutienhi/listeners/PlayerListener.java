@@ -12,7 +12,7 @@ import org.bukkit.inventory.ItemStack;
 import vn.tutienhi.TuTienHi;
 import vn.tutienhi.data.PlayerData;
 import vn.tutienhi.managers.CultivationPathManager;
-import vn.tutienhi.models.Realm; // Đã thêm import
+import vn.tutienhi.models.Realm; // Import đúng
 
 public class PlayerListener implements Listener {
 
@@ -52,6 +52,7 @@ public class PlayerListener implements Listener {
         PlayerData data = plugin.getPlayerDataManager().getPlayerData(player);
         if (data == null) return;
 
+        // Đã sửa kiểu dữ liệu
         Realm realm = plugin.getRealmManager().getRealm(data.getRealmId());
         CultivationPathManager.Path path = plugin.getCultivationPathManager().getPath(data.getCultivationPathId());
 

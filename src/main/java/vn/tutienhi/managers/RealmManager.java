@@ -12,7 +12,7 @@ import java.io.File;
 import java.util.*;
 
 public class RealmManager {
-    // ... (Không còn lớp Realm nội bộ ở đây nữa)
+    // Không còn lớp Realm nội bộ ở đây nữa
 
     private final TuTienHi plugin;
     private final Map<String, Realm> realmsById = new LinkedHashMap<>();
@@ -35,10 +35,19 @@ public class RealmManager {
         // ...
     }
 
+    // Các hàm trả về đều dùng Realm độc lập
     public Realm getRealm(String id) { return realmsById.get(id); }
     public Realm getInitialRealm() {
         if (realmOrder.isEmpty()) return null;
         return getRealm(realmOrder.get(0));
     }
-    // ... các hàm khác
+    public Realm getNextRealm(String currentRealmId) {
+        // ...
+        return getRealm(realmOrder.get(currentIndex + 1));
+    }
+    public List<Realm> getRealms() { // Thêm hàm này
+        return new ArrayList<>(realmsById.values());
+    }
+    public List<String> getRealmOrder() { return realmOrder; }
+    public int getTotalRealms() { return realmOrder.size(); }
 }

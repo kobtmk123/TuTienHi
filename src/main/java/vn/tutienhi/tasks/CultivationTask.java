@@ -9,7 +9,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.*;
 import vn.tutienhi.TuTienHi;
 import vn.tutienhi.data.PlayerData;
-import vn.tutienhi.models.Realm; // Đã thêm import
+import vn.tutienhi.models.Realm; // Import đúng
 import vn.tutienhi.utils.ChatUtil;
 import java.util.HashMap;
 import java.util.Map;
@@ -47,6 +47,7 @@ public class CultivationTask extends BukkitRunnable {
     }
     
     private void handleCultivation(Player player, PlayerData data) {
+        // Đã sửa kiểu dữ liệu
         Realm realm = plugin.getRealmManager().getRealm(data.getRealmId());
         if (realm == null) return;
         double baseGain = realm.getLinhKhiPerTick();
@@ -65,6 +66,7 @@ public class CultivationTask extends BukkitRunnable {
         PlayerData pData = plugin.getPlayerDataManager().getPlayerData(player);
         if (pData == null) return;
 
+        // Đã sửa kiểu dữ liệu
         Realm realm = plugin.getRealmManager().getRealm(pData.getRealmId());
         if (realm == null) return;
 
@@ -108,6 +110,7 @@ public class CultivationTask extends BukkitRunnable {
         objective.setDisplayName(ChatUtil.colorize(plugin.getConfig().getString("messages.scoreboard.title")));
         for (String entry : board.getEntries()) { board.resetScores(entry); }
         
+        // Đã sửa kiểu dữ liệu
         Realm realm = plugin.getRealmManager().getRealm(data.getRealmId());
         if (realm == null) return;
 

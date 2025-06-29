@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import vn.tutienhi.TuTienHi;
 import vn.tutienhi.data.PlayerData;
 import vn.tutienhi.managers.CultivationPathManager;
-import vn.tutienhi.models.Realm; // Đã thêm import
+import vn.tutienhi.models.Realm; // Import đúng
 import vn.tutienhi.utils.ChatUtil;
 
 public class TuTienHiExpansion extends PlaceholderExpansion {
@@ -39,6 +39,7 @@ public class TuTienHiExpansion extends PlaceholderExpansion {
             return "Dang tai...";
         }
 
+        // Đã sửa kiểu dữ liệu
         Realm realm = plugin.getRealmManager().getRealm(data.getRealmId());
         if (realm == null) {
             return "Khong ro";

@@ -4,7 +4,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import vn.tutienhi.TuTienHi;
-import vn.tutienhi.managers.RealmManager;
+import vn.tutienhi.models.Realm; // THÊM DÒNG IMPORT NÀY
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -33,9 +33,10 @@ public class PlayerDataManager {
         UUID uuid = player.getUniqueId();
         File playerFile = new File(dataFolder, uuid + ".yml");
         
-        RealmManager.Realm initialRealm = plugin.getRealmManager().getInitialRealm();
+        // SỬA LỖI Ở ĐÂY:
+        Realm initialRealm = plugin.getRealmManager().getInitialRealm();
         if (initialRealm == null) {
-            plugin.getLogger().severe("KHONG THE TAI CANH GIOI KHOI DAU!");
+            plugin.getLogger().severe("KHONG THE TAI CANH GIOI KHOI DAU! Vui long kiem tra lai file realms.yml.");
             return;
         }
 
